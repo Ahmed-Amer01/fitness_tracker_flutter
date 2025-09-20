@@ -97,7 +97,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Health Metrics'),
-            backgroundColor: AppColors.beige, // From your theme
           ),
           body: provider.loading
               ? const Center(child: CircularProgressIndicator())
@@ -114,7 +113,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primaryDark,
                             ),
                           ),
                           ElevatedButton(
@@ -366,7 +364,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryDark,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -418,7 +415,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                   e.value.weight))
                                               .toList(),
                                           isCurved: true,
-                                          color: AppColors.blue900,
                                           barWidth: 2,
                                           dotData: const FlDotData(show: true),
                                         ),
@@ -505,7 +501,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           Text(
                                             bmi.toStringAsFixed(1),
                                             style: TextStyle(
-                                              color: AppColors.primaryDark,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
