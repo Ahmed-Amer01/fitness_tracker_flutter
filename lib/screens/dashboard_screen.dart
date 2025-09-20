@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
-import '../providers/health_metric_provider.dart'; // <- new
+import '../providers/health_metric_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/loading_overlay.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -13,15 +14,72 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    // Set non-auth screens mode (theme from user profile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ThemeProvider>(context, listen: false).setAuthScreens(false);
-      // Fetch initial health metrics
       Provider.of<HealthMetricProvider>(context, listen: false).fetchMetrics();
     });
+  }
+
+  Future<void> _updateThemePreference(BuildContext context, String newTheme) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      final user = authProvider.user;
+
+      if (user == null) {
+        throw Exception('User not found');
+      }
+
+      final result = await authProvider.updateProfile(
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: null,
+        theme: newTheme.toUpperCase(),
+        notificationsEnabled: user.notificationsEnabled,
+        workoutReminderTime: user.workoutReminderTime,
+        profilePicPath: null,
+      );
+
+      if (result.success) {
+        themeProvider.setThemeFromProfile(newTheme.toUpperCase());
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Theme updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.message ?? 'Failed to update theme'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -33,253 +91,273 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('Fitness Tracker'),
+            title: const Text(
+              'Fitness Tracker',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryDark,
+              ),
+            ),
+            backgroundColor: AppColors.beige,
             actions: [
-              // Theme Toggle Button
               IconButton(
                 onPressed: () {
-                  themeProvider.toggleTheme();
+                  final newTheme = themeProvider.isDark ? 'LIGHT' : 'DARK';
+                  themeProvider.toggleTheme(); // Immediate UI update
+                  _updateThemePreference(context, newTheme); // Update backend
                 },
                 icon: Icon(
                   themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
+                  color: AppColors.primaryDark,
                 ),
               ),
-              // Logout Button
               IconButton(
                 onPressed: () {
                   _showLogoutDialog(context, authProvider, themeProvider);
                 },
-                icon: Icon(Icons.logout),
+                icon: const Icon(
+                  Icons.logout,
+                  color: AppColors.primaryDark,
+                ),
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Welcome Card
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        // Profile Picture
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Theme.of(context).primaryColor,
-                          backgroundImage: user?.profilePicUrl != null
-                              ? NetworkImage(user!.profilePicUrl!)
-                              : null,
-                          child: user?.profilePicUrl == null
-                              ? Icon(
-                                  Icons.person,
-                                  size: 30,
-                                  color: Colors.white,
-                                )
-                              : null,
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Welcome Card
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              backgroundImage: user?.profilePicUrl != null
+                                  ? NetworkImage(user!.profilePicUrl!)
+                                  : null,
+                              child: user?.profilePicUrl == null
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Welcome back,',
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  Text(
+                                    user?.fullName ?? 'User',
+                                    style: Theme.of(context).textTheme.headlineMedium,  
+                                  ),
+                                  Text(
+                                    'Ready for your workout?',
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Stats Cards
+                    Text(
+                      'Your Stats',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome back,',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              Text(
-                                user?.fullName ?? 'User',
-                                style: Theme.of(context).textTheme.headlineMedium,
-                              ),
-                              Text(
-                                'Ready for your workout?',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
+                          child: _buildStatCard(
+                            context,
+                            'Workouts',
+                            '12',
+                            Icons.fitness_center,
+                        Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildStatCard(
+                            context,
+                            'Calories',
+                            '2,450',
+                            Icons.local_fire_department,
+                            Colors.orange,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-
-                SizedBox(height: 24),
-
-                // Stats Cards
-                Text(
-                  'Your Stats',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Workouts',
-                        '12',
-                        Icons.fitness_center,
-                        Colors.blue,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Calories',
-                        '2,450',
-                        Icons.local_fire_department,
-                        Colors.orange,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Hours',
-                        '24.5',
-                        Icons.access_time,
-                        Colors.green,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Streak',
-                        '7 days',
-                        Icons.local_fire_department,
-                        Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 24),
-
-                // Quick Actions
-                Text(
-                  'Quick Actions',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                SizedBox(height: 16),
-
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.3,
-                  children: [
-                    _buildActionCard(
-                      context,
-                      'Start Workout',
-                      Icons.play_arrow,
-                      Colors.blue,
-                      () {
-                        // Navigate to workout screen
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      'Track Food',
-                      Icons.restaurant,
-                      Colors.green,
-                      () {
-                        // Navigate to food tracking
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      'View Progress',
-                      Icons.trending_up,
-                      Colors.purple,
-                      () {
-                        // Navigate to progress screen
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      'Health Metrics',
-                      Icons.health_and_safety_rounded,
-                      Colors.red,
-                      () {
-                        Navigator.pushNamed(context, '/health-metric');
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      'Settings',
-                      Icons.settings,
-                      Colors.grey,
-                      () {
-                        Navigator.pushNamed(context, '/settings');
-                      },
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 24),
-
-                // Theme Info Card
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 12),
+                    Row(
                       children: [
-                        Text(
-                          'App Theme',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                        Expanded(
+                          child: _buildStatCard(
+                            context,
+                            'Hours',
+                            '24.5',
+                            Icons.access_time,
+                            Colors.green,
+                          ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Current theme: ${themeProvider.isDark ? "Dark" : "Light"}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          'User preference: ${user?.theme ?? "light"}',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildStatCard(
+                            context,
+                            'Streak',
+                            '7 days',
+                            Icons.local_fire_department,
+                            Colors.red,
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                    // Quick Actions
+                    Text(
+                      'Quick Actions',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.3,
+                      children: [
+                        _buildActionCard(
+                          context,
+                          'Start Workout',
+                          Icons.play_arrow,
+                          Colors.blue,
+                          () {
+                            // Navigate to workout screen
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Track Food',
+                          Icons.restaurant,
+                          Colors.green,
+                          () {
+                            // Navigate to food tracking
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'View Progress',
+                          Icons.trending_up,
+                          Colors.purple,
+                          () {
+                            // Navigate to progress screen
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Health Metrics',
+                          Icons.health_and_safety_rounded,
+                          Colors.red,
+                          () {
+                            Navigator.pushNamed(context, '/health-metric');
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Settings',
+                          Icons.settings,
+                          Colors.grey,
+                          () {
+                            Navigator.pushNamed(context, '/settings');
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Theme Info Card
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'App Theme',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Current theme: ${themeProvider.isDark ? "Dark" : "Light"}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            Text(
+                              'User preference: ${user?.theme ?? "Light"}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (_isLoading)
+                const LoadingOverlay(text: 'Updating Theme...'),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      BuildContext context, String title, String value, IconData icon, Color color) {
     return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Icon(icon, color: color, size: 24),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
-                  title, 
+                  title,
                   style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -308,8 +386,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  ),
+                      fontWeight: FontWeight.w600,
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
