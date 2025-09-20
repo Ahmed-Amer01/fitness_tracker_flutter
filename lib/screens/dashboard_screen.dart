@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/health_metric_provider.dart'; // <- new
 import '../theme/app_theme.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -18,15 +19,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Set non-auth screens mode (theme from user profile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ThemeProvider>(context, listen: false).setAuthScreens(false);
+      // Fetch initial health metrics
+      Provider.of<HealthMetricProvider>(context, listen: false).fetchMetrics();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthProvider, ThemeProvider>(
-      builder: (context, authProvider, themeProvider, child) {
+    return Consumer3<AuthProvider, ThemeProvider, HealthMetricProvider>(
+      builder: (context, authProvider, themeProvider, healthProvider, child) {
         final user = authProvider.user;
-        
+        final metrics = healthProvider.metrics;
+
         return Scaffold(
           appBar: AppBar(
             title: Text('Fitness Tracker'),
@@ -64,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         CircleAvatar(
                           radius: 30,
                           backgroundColor: Theme.of(context).primaryColor,
-                          backgroundImage: user?.profilePicUrl != null 
+                          backgroundImage: user?.profilePicUrl != null
                               ? NetworkImage(user!.profilePicUrl!)
                               : null,
                           child: user?.profilePicUrl == null
@@ -205,6 +209,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     _buildActionCard(
                       context,
+                      'Health Metrics',
+                      Icons.health_and_safety_rounded,
+                      Colors.red,
+                      () {
+                        Navigator.pushNamed(context, '/health-metric');
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
                       'Settings',
                       Icons.settings,
                       Colors.grey,
@@ -261,18 +274,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icon(icon, color: color, size: 24),
                 SizedBox(width: 8),
                 Text(
-                  title,
+                  title, 
                   style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                  ),
               ],
             ),
             SizedBox(height: 8),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ],
         ),
@@ -296,7 +309,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                ),
+                  ),
                 textAlign: TextAlign.center,
               ),
             ],

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/health_metric_provider.dart'; // <-- new provider
 import 'screens/welcome_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/health_metric_screen.dart'; // <-- new screen
 import 'theme/app_theme.dart';
 
 void main() {
@@ -16,8 +18,9 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => HealthMetricProvider()), // <-- added
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -42,6 +45,7 @@ class MyApp extends StatelessWidget {
             '/reset-password': (context) => const ResetPasswordScreen(),
             '/dashboard': (context) => const DashboardScreen(),
             '/settings': (context) => const SettingsScreen(),
+            '/health-metric': (context) => const HealthMetricScreen(), // <-- added
           },
           debugShowCheckedModeBanner: false,
         );
