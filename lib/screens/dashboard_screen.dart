@@ -96,10 +96,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryDark,
               ),
             ),
-            backgroundColor: AppColors.beige,
             actions: [
               IconButton(
                 onPressed: () {
@@ -109,7 +107,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
                 icon: Icon(
                   themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
-                  color: AppColors.primaryDark,
                 ),
               ),
               IconButton(
@@ -118,7 +115,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
                 icon: const Icon(
                   Icons.logout,
-                  color: AppColors.primaryDark,
                 ),
               ),
             ],
