@@ -24,6 +24,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Provider.of<ThemeProvider>(context, listen: false).setAuthScreens(false);
       Provider.of<HealthMetricProvider>(context, listen: false).fetchMetrics();
       _loadProfileImage();
+      _preloadIcon(context);
+    });
+  }
+
+  void _preloadIcon(BuildContext context) {
+    precacheImage(const AssetImage('assets/images/fitnessLogo2.png'), context, onError: (exception, stackTrace) {
+      debugPrint('Error preloading fitnessLogo2.png: $exception\n$stackTrace');
     });
   }
 
@@ -136,8 +143,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildAppBarIcon(BoxConstraints constraints) {
+    return Image.asset(
+      'assets/images/fitnessLogo2.png',
+      fit: BoxFit.contain,
+      width: constraints.maxWidth,
+      height: constraints.maxHeight,
+      color: Theme.of(context).appBarTheme.iconTheme?.color,
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('Error loading fitnessLogo2.png: $error\n$stackTrace');
+        return Container(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          color: Colors.grey.shade300,
+          child: Center(
+            child: Text(
+              'Image not found',
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: constraints.maxWidth < 360 ? 16 : 18,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Consumer3<AuthProvider, ThemeProvider, HealthMetricProvider>(
       builder: (context, authProvider, themeProvider, healthProvider, child) {
         final user = authProvider.user;
@@ -145,6 +184,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return _buildAppBarIcon(constraints);
+                    },
+                  ),
+                ),
+              ),
+            ),
             title: Text(
               'Fitness Tracker',
               style: Theme.of(context).textTheme.headlineMedium,
