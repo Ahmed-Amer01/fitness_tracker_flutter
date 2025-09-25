@@ -211,7 +211,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                             labelText: 'BMI (auto)',
                                             border: const OutlineInputBorder(),
                                             labelStyle: TextStyle(
-                                              color: AppColors.primaryDark,
                                             ),
                                           ),
                                           controller: TextEditingController(
@@ -227,7 +226,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                   Container(
                                     height: 8,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: FractionallySizedBox(

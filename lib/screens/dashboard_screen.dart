@@ -281,6 +281,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         _buildActionCard(
                           context,
+                          'Goals',
+                          Icons.flag,
+                          Colors.teal,
+                          () {
+                            Navigator.pushNamed(context, '/goals');
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
                           'Settings',
                           Icons.settings,
                           Colors.grey,
