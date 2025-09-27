@@ -21,7 +21,7 @@ class _LoadingOverlayState extends State<LoadingOverlay>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
     _animation = CurvedAnimation(
@@ -47,7 +47,7 @@ class _LoadingOverlayState extends State<LoadingOverlay>
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -64,10 +64,10 @@ class _LoadingOverlayState extends State<LoadingOverlay>
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   widget.text,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),

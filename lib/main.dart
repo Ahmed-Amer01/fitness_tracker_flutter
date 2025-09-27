@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/auth_provider.dart';
-import 'providers/health_metric_provider.dart'; // <-- new provider
+import 'providers/health_metric_provider.dart';
+import 'providers/workout_provider.dart';
+import 'providers/exercise_provider.dart';
+import 'providers/nutrition_provider.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/health_metric_screen.dart'; // <-- new screen
+import 'screens/health_metric_screen.dart';
+import 'screens/workouts_screen.dart';
+import 'screens/exercises_screen.dart';
+import 'screens/nutrition_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -18,7 +24,10 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => HealthMetricProvider()), // <-- added
+        ChangeNotifierProvider(create: (_) => HealthMetricProvider()),
+        ChangeNotifierProvider(create: (_) => WorkoutProvider()),
+        ChangeNotifierProvider(create: (_) => ExerciseProvider()),
+        ChangeNotifierProvider(create: (_) => NutritionProvider()),
       ],
       child: const MyApp(),
     ),
@@ -26,7 +35,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +54,10 @@ class MyApp extends StatelessWidget {
             '/reset-password': (context) => const ResetPasswordScreen(),
             '/dashboard': (context) => const DashboardScreen(),
             '/settings': (context) => const SettingsScreen(),
-            '/health-metric': (context) => const HealthMetricScreen(), // <-- added
+            '/health-metric': (context) => const HealthMetricScreen(),
+            '/workouts': (context) => const WorkoutsScreen(),
+            '/exercises': (context) => const ExercisesScreen(),
+            '/nutrition': (context) => const NutritionScreen(),
           },
           debugShowCheckedModeBanner: false,
         );

@@ -7,7 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/loading_overlay.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -25,7 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> _updateThemePreference(BuildContext context, String newTheme) async {
+  Future<void> _updateThemePreference(
+      BuildContext context, String newTheme) async {
     setState(() {
       _isLoading = true;
     });
@@ -157,15 +158,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 children: [
                                   Text(
                                     'Welcome back,',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                   Text(
                                     user?.fullName ?? 'User',
-                                    style: Theme.of(context).textTheme.headlineMedium,  
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
                                   ),
                                   Text(
                                     'Ready for your workout?',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
@@ -189,7 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Workouts',
                             '12',
                             Icons.fitness_center,
-                        Colors.blue,
+                            Colors.blue,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -232,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // Quick Actions
                     Text(
                       'Quick Actions',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 16),
                     GridView.count(
@@ -245,29 +250,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         _buildActionCard(
                           context,
-                          'Start Workout',
-                          Icons.play_arrow,
+                          'Workouts',
+                          Icons.fitness_center,
                           Colors.blue,
                           () {
-                            // Navigate to workout screen
+                            Navigator.pushNamed(context, '/workouts');
                           },
                         ),
                         _buildActionCard(
                           context,
-                          'Track Food',
+                          'Nutrition',
                           Icons.restaurant,
                           Colors.green,
                           () {
-                            // Navigate to food tracking
+                            Navigator.pushNamed(context, '/nutrition');
                           },
                         ),
                         _buildActionCard(
                           context,
-                          'View Progress',
-                          Icons.trending_up,
+                          'Exercises',
+                          Icons.sports_gymnastics,
                           Colors.purple,
                           () {
-                            // Navigate to progress screen
+                            Navigator.pushNamed(context, '/exercises');
                           },
                         ),
                         _buildActionCard(
@@ -304,7 +309,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Text(
                               'App Theme',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -322,8 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-              if (_isLoading)
-                const LoadingOverlay(text: 'Updating Theme...'),
+              if (_isLoading) const LoadingOverlay(text: 'Updating Theme...'),
             ],
           ),
         );
@@ -331,8 +335,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatCard(
-      BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String title, String value,
+      IconData icon, Color color) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -367,18 +371,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(BuildContext context, String title, IconData icon,
+      Color color, VoidCallback onTap) {
     return Card(
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: color, size: 32),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -393,19 +398,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, AuthProvider authProvider, ThemeProvider themeProvider) {
+  void _showLogoutDialog(BuildContext context, AuthProvider authProvider,
+      ThemeProvider themeProvider) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Logout'),
-          content: Text('Are you sure you want to logout?'),
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
@@ -414,7 +420,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 themeProvider.setAuthScreens(true);
                 Navigator.pushReplacementNamed(context, '/');
               },
-              child: Text('Logout'),
+              child: const Text('Logout'),
             ),
           ],
         );

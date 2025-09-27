@@ -6,13 +6,14 @@ import '../widgets/loading_overlay.dart';
 import '../theme/app_theme.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({Key? key}) : super(key: key);
+  const ResetPasswordScreen({super.key});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerProviderStateMixin {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _otpController = TextEditingController();
@@ -33,7 +34,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
     });
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -41,7 +42,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero).animate(
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
@@ -60,7 +62,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
   Future<void> _requestOtp() async {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Please enter your email first'),
           backgroundColor: Colors.red,
         ),
@@ -103,13 +105,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
 
       if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Password reset successful! Please log in with your new password.'),
+          const SnackBar(
+            content: Text(
+                'Password reset successful! Please log in with your new password.'),
             backgroundColor: Colors.green,
           ),
         );
-        
-        await Future.delayed(Duration(seconds: 2));
+
+        await Future.delayed(const Duration(seconds: 2));
         Navigator.pushReplacementNamed(context, '/login');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,10 +135,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
             children: [
               SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Header
                       SlideTransition(
@@ -144,13 +147,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                           opacity: _fadeAnimation,
                           child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.lock_reset,
                                 size: 80,
                                 color: AppColors.blue900,
                               ),
-                              SizedBox(height: 16),
-                              Text(
+                              const SizedBox(height: 16),
+                              const Text(
                                 'Reset Password',
                                 style: TextStyle(
                                   fontSize: 28,
@@ -158,12 +161,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                   color: AppColors.primaryDark,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                _otpSent 
+                                _otpSent
                                     ? 'Enter the OTP sent to your email and your new password'
                                     : 'Enter your email address to receive an OTP',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: AppColors.gray600,
                                 ),
@@ -174,7 +177,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Reset Form
                       SlideTransition(
@@ -187,47 +190,54 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.all(24),
+                              padding: const EdgeInsets.all(24),
                               child: Form(
                                 key: _formKey,
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     // Email
                                     TextFormField(
                                       controller: _emailController,
                                       keyboardType: TextInputType.emailAddress,
                                       enabled: !_otpSent,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         labelText: 'Email',
-                                        prefixIcon: Icon(Icons.email, color: AppColors.gray400),
+                                        prefixIcon: Icon(Icons.email,
+                                            color: AppColors.gray400),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Email is required';
                                         }
-                                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
-                ).hasMatch(value)) {
+                                        if (!RegExp(
+                                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                            .hasMatch(value)) {
                                           return 'Invalid email format';
                                         }
                                         return null;
                                       },
                                     ),
 
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
 
                                     // Request OTP Button (only show if OTP not sent)
                                     if (!_otpSent) ...[
                                       ElevatedButton(
-                                        onPressed: authProvider.isLoading ? null : _requestOtp,
+                                        onPressed: authProvider.isLoading
+                                            ? null
+                                            : _requestOtp,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.blue900,
-                                          padding: EdgeInsets.symmetric(vertical: 16),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
                                         ),
-                                        child: Text(
+                                        child: const Text(
                                           'Request OTP',
                                           style: TextStyle(
                                             fontSize: 16,
@@ -236,7 +246,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                     ],
 
                                     // OTP Field (show after OTP is sent)
@@ -244,9 +254,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                       TextFormField(
                                         controller: _otpController,
                                         keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           labelText: 'OTP',
-                                          prefixIcon: Icon(Icons.security, color: AppColors.gray400),
+                                          prefixIcon: Icon(Icons.security,
+                                              color: AppColors.gray400),
                                         ),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
@@ -255,15 +266,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                           return null;
                                         },
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // New Password
                                       TextFormField(
                                         controller: _newPasswordController,
                                         obscureText: true,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           labelText: 'New Password',
-                                          prefixIcon: Icon(Icons.lock, color: AppColors.gray400),
+                                          prefixIcon: Icon(Icons.lock,
+                                              color: AppColors.gray400),
                                         ),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
@@ -275,19 +287,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                           return null;
                                         },
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
                                       // Reset Password Button
                                       ElevatedButton(
-                                        onPressed: authProvider.isLoading ? null : _resetPassword,
+                                        onPressed: authProvider.isLoading
+                                            ? null
+                                            : _resetPassword,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.blue900,
-                                          padding: EdgeInsets.symmetric(vertical: 16),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
                                         ),
-                                        child: Text(
+                                        child: const Text(
                                           'Reset Password',
                                           style: TextStyle(
                                             fontSize: 16,
@@ -296,22 +312,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // Resend OTP
                                       Center(
                                         child: GestureDetector(
-                                          onTap: authProvider.isLoading ? null : () {
-                                            setState(() {
-                                              _otpSent = false;
-                                            });
-                                          },
-                                          child: Text(
+                                          onTap: authProvider.isLoading
+                                              ? null
+                                              : () {
+                                                  setState(() {
+                                                    _otpSent = false;
+                                                  });
+                                                },
+                                          child: const Text(
                                             'Didn\'t receive OTP? Request again',
                                             style: TextStyle(
                                               color: AppColors.skyBrand,
                                               fontWeight: FontWeight.w500,
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                           ),
                                         ),
@@ -325,14 +344,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Back to Login
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/login');
                         },
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.arrow_back, color: AppColors.skyBrand),
@@ -354,7 +373,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with TickerPr
 
               // Loading Overlay
               if (authProvider.isLoading)
-                LoadingOverlay(text: 'Processing...'),
+                const LoadingOverlay(text: 'Processing...'),
             ],
           );
         },

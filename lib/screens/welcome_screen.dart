@@ -4,14 +4,14 @@ import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentIndex = 0;
 
   // Sample images - replace with your assets
@@ -33,7 +33,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
 
     // Auto-slide every 4 seconds (slightly slower for mobile readability)
-    Future.delayed(Duration(seconds: 4), _autoSlide);
+    Future.delayed(const Duration(seconds: 4), _autoSlide);
   }
 
   // Preload images to improve performance
@@ -50,10 +50,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       });
       _pageController.animateToPage(
         _currentIndex,
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
-      Future.delayed(Duration(seconds: 4), _autoSlide);
+      Future.delayed(const Duration(seconds: 4), _autoSlide);
     }
   }
 
@@ -64,148 +64,148 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final isSmallScreen = screenWidth < 360;
-  final screenHeight = MediaQuery.of(context).size.height;
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-  return Scaffold(
-    backgroundColor: AppColors.beige,
-    body: SafeArea(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Image Slider Section (take ~40% of screen height)
-              SizedBox(
-                height: screenHeight * 0.4,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          },
-                          itemCount: _images.length,
-                          itemBuilder: (context, index) {
-                            return LayoutBuilder(
-                              builder: (context, constraints) {
-                                return _buildImage(index, constraints);
-                              },
-                            );
-                          },
+    return Scaffold(
+      backgroundColor: AppColors.beige,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Image Slider Section (take ~40% of screen height)
+                SizedBox(
+                  height: screenHeight * 0.4,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
-                        // Dots Navigation
-                        Positioned(
-                          bottom: 12,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              _images.length,
-                              (index) => Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                width: isSmallScreen ? 8 : 10,
-                                height: isSmallScreen ? 8 : 10,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentIndex == index
-                                      ? AppColors.blue900
-                                      : AppColors.gray400.withOpacity(0.6),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Stack(
+                        children: [
+                          PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentIndex = index;
+                              });
+                            },
+                            itemCount: _images.length,
+                            itemBuilder: (context, index) {
+                              return LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return _buildImage(index, constraints);
+                                },
+                              );
+                            },
+                          ),
+                          // Dots Navigation
+                          Positioned(
+                            bottom: 12,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                _images.length,
+                                (index) => Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 3),
+                                  width: isSmallScreen ? 8 : 10,
+                                  height: isSmallScreen ? 8 : 10,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _currentIndex == index
+                                        ? AppColors.blue900
+                                        : AppColors.gray400.withOpacity(0.6),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: isSmallScreen ? 24 : 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-              // Get Started Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blue900,
-                    padding: EdgeInsets.symmetric(
-                      vertical: isSmallScreen ? 14 : 16,
-                      horizontal: isSmallScreen ? 24 : 32,
+                // Get Started Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blue900,
+                      padding: EdgeInsets.symmetric(
+                        vertical: isSmallScreen ? 14 : 16,
+                        horizontal: isSmallScreen ? 24 : 32,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 2,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    'Get Started',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    child: Text(
+                      'Get Started',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: isSmallScreen ? 24 : 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-              // About Us Section
-              Column(
-                children: [
-                  Text(
-                    'About Us',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 20 : 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.gray800,
+                // About Us Section
+                Column(
+                  children: [
+                    Text(
+                      'About Us',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 20 : 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.gray800,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: isSmallScreen ? 12 : 16),
-                  Text(
-                    'Welcome to our fitness tracker app! 🚀\n\nWe help you stay on top of your workouts, track health stats, and achieve your goals while connecting with a supportive community.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 12 : 14,
-                      color: AppColors.gray600,
-                      height: 1.4,
+                    SizedBox(height: isSmallScreen ? 12 : 16),
+                    Text(
+                      'Welcome to our fitness tracker app! 🚀\n\nWe help you stay on top of your workouts, track health stats, and achieve your goals while connecting with a supportive community.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        color: AppColors.gray600,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // Image widget to display actual assets, flexible for any dimensions
   Widget _buildImage(int index, BoxConstraints constraints) {

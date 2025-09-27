@@ -144,7 +144,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: Text(showForm ? 'Close Form' : 'Add Metric +'),
+                            child:
+                                Text(showForm ? 'Close Form' : 'Add Metric +'),
                           ),
                         ],
                       ),
@@ -166,20 +167,24 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                         .map(
                                           (f) => Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
                                               child: TextFormField(
                                                 controller: controllers[f],
                                                 keyboardType:
-                                                    TextInputType.numberWithOptions(
+                                                    const TextInputType
+                                                        .numberWithOptions(
                                                         decimal: true),
                                                 inputFormatters: [
-                                                  FilteringTextInputFormatter.allow(
-                                                      RegExp(r'^\d*\.?\d*$')),
+                                                  FilteringTextInputFormatter
+                                                      .allow(RegExp(
+                                                          r'^\d*\.?\d*$')),
                                                 ],
                                                 decoration: InputDecoration(
-                                                  labelText: f[0].toUpperCase() +
-                                                      f.substring(1),
+                                                  labelText:
+                                                      f[0].toUpperCase() +
+                                                          f.substring(1),
                                                   border:
                                                       const OutlineInputBorder(),
                                                 ),
@@ -194,7 +199,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                   }
                                                   return null;
                                                 },
-                                                onChanged: (_) => setState(() {}),
+                                                onChanged: (_) =>
+                                                    setState(() {}),
                                               ),
                                             ),
                                           ),
@@ -207,9 +213,9 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                       Expanded(
                                         child: TextField(
                                           enabled: false,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'BMI (auto)',
-                                            border: const OutlineInputBorder(),
+                                            border: OutlineInputBorder(),
                                             labelStyle: TextStyle(
                                               color: AppColors.primaryDark,
                                             ),
@@ -237,7 +243,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: _getBmiColor(bmi),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                       ),
                                     ),
@@ -253,8 +260,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                       showMeasurements
                                           ? 'Hide Body Measurements'
                                           : 'Show Body Measurements',
-                                      style:
-                                          TextStyle(color: AppColors.skyBrand),
+                                      style: const TextStyle(
+                                          color: AppColors.skyBrand),
                                     ),
                                   ),
                                   if (showMeasurements)
@@ -264,9 +271,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                             vertical: 8),
                                         child: TextFormField(
                                           controller: controllers[f],
-                                          keyboardType:
-                                              TextInputType.numberWithOptions(
-                                                  decimal: true),
+                                          keyboardType: const TextInputType
+                                              .numberWithOptions(decimal: true),
                                           inputFormatters: [
                                             FilteringTextInputFormatter.allow(
                                                 RegExp(r'^\d*\.?\d*$')),
@@ -279,7 +285,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           validator: (value) {
                                             if (value != null &&
                                                 value.isNotEmpty &&
-                                                double.tryParse(value) == null) {
+                                                double.tryParse(value) ==
+                                                    null) {
                                               return 'Enter a valid number';
                                             }
                                             return null;
@@ -293,7 +300,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          if (_formKey.currentState!.validate()) {
+                                          if (_formKey.currentState!
+                                              .validate()) {
                                             final metric =
                                                 readMetricFromControllers(
                                                     id: editingMetric?.id);
@@ -389,7 +397,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                             },
                                           ),
                                         ),
-                                        leftTitles: AxisTitles(
+                                        leftTitles: const AxisTitles(
                                           sideTitles: SideTitles(
                                             showTitles: true,
                                             reservedSize: 40,
@@ -428,7 +436,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                     spot.x.toInt());
                                             return LineTooltipItem(
                                               'Date: ${date.month}-${date.day}\nWeight: ${spot.y} kg',
-                                              const TextStyle(color: Colors.white),
+                                              const TextStyle(
+                                                  color: Colors.white),
                                             );
                                           }).toList(),
                                         ),
@@ -490,17 +499,14 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                         : 0;
                                     return DataRow(
                                       cells: [
-                                        DataCell(Text(
-                                            '${metric.date.toLocal()}'
-                                                .split(' ')[0])),
-                                        DataCell(
-                                            Text('${metric.weight} kg')),
-                                        DataCell(
-                                            Text('${metric.height} cm')),
+                                        DataCell(Text('${metric.date.toLocal()}'
+                                            .split(' ')[0])),
+                                        DataCell(Text('${metric.weight} kg')),
+                                        DataCell(Text('${metric.height} cm')),
                                         DataCell(
                                           Text(
                                             bmi.toStringAsFixed(1),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),

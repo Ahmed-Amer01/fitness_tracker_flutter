@@ -9,7 +9,7 @@ import '../widgets/loading_overlay.dart';
 import '../theme/app_theme.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -70,8 +70,8 @@ class _SignupScreenState extends State<SignupScreen>
 
   Future<void> _pickImage() async {
     try {
-      final XFile? image =
-          await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+      final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery, imageQuality: 70);
       if (image != null) {
         setState(() {
           _profileImage = image;
@@ -104,9 +104,9 @@ class _SignupScreenState extends State<SignupScreen>
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: 
-          Text('Signup successful! Redirecting...'),
-          backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Signup successful! Redirecting...'),
+              backgroundColor: Colors.green),
         );
 
         await Future.delayed(const Duration(seconds: 2));
@@ -127,7 +127,7 @@ class _SignupScreenState extends State<SignupScreen>
 
   Widget _buildProfileImage() {
     if (_profileImage == null) {
-      return Icon(Icons.camera_alt,
+      return const Icon(Icons.camera_alt,
           size: 40, color: AppColors.primaryDark);
     }
 
@@ -193,7 +193,7 @@ class _SignupScreenState extends State<SignupScreen>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        Text(
+                                        const Text(
                                           'Create Account',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -223,7 +223,7 @@ class _SignupScreenState extends State<SignupScreen>
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        Text(
+                                        const Text(
                                           'Tap to add profile picture (optional)',
                                           style: TextStyle(
                                             fontSize: 12,
@@ -234,7 +234,7 @@ class _SignupScreenState extends State<SignupScreen>
                                         const SizedBox(height: 24),
                                         TextFormField(
                                           controller: _firstNameController,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'First Name',
                                             prefixIcon: Icon(Icons.person,
                                                 color: AppColors.gray400),
@@ -254,7 +254,7 @@ class _SignupScreenState extends State<SignupScreen>
                                         const SizedBox(height: 16),
                                         TextFormField(
                                           controller: _lastNameController,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'Last Name',
                                             prefixIcon: Icon(Icons.person,
                                                 color: AppColors.gray400),
@@ -276,7 +276,7 @@ class _SignupScreenState extends State<SignupScreen>
                                           controller: _emailController,
                                           keyboardType:
                                               TextInputType.emailAddress,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'Email',
                                             prefixIcon: Icon(Icons.email,
                                                 color: AppColors.gray400),
@@ -297,7 +297,7 @@ class _SignupScreenState extends State<SignupScreen>
                                         TextFormField(
                                           controller: _passwordController,
                                           obscureText: true,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'Password',
                                             prefixIcon: Icon(Icons.lock,
                                                 color: AppColors.gray400),
@@ -319,8 +319,7 @@ class _SignupScreenState extends State<SignupScreen>
                                               ? null
                                               : _signup,
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                AppColors.blue900,
+                                            backgroundColor: AppColors.blue900,
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 16),
                                             shape: RoundedRectangleBorder(
@@ -342,7 +341,7 @@ class _SignupScreenState extends State<SignupScreen>
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text(
+                                            const Text(
                                               'Already have an account? ',
                                               style: TextStyle(
                                                   color: AppColors.gray600),
@@ -352,13 +351,13 @@ class _SignupScreenState extends State<SignupScreen>
                                                 Navigator.pushReplacementNamed(
                                                     context, '/login');
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 'Log in',
                                                 style: TextStyle(
                                                   color: AppColors.skyBrand,
                                                   fontWeight: FontWeight.w600,
-                                                  decoration: TextDecoration
-                                                      .underline,
+                                                  decoration:
+                                                      TextDecoration.underline,
                                                 ),
                                               ),
                                             ),
@@ -376,12 +375,12 @@ class _SignupScreenState extends State<SignupScreen>
                             onTap: () {
                               Navigator.pushReplacementNamed(context, '/');
                             },
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.arrow_back,
                                     color: AppColors.skyBrand),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 Text(
                                   'Back to Welcome',
                                   style: TextStyle(
