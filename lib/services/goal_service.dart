@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../models/goal_model.dart';
 
 class GoalService {
-  // Adjust baseUrl based on your environment
   static const String baseUrl = 'http://10.0.2.2:8080/api/goals';
 
   Future<List<Goal>> fetchUserGoals(String token) async {
@@ -27,7 +26,7 @@ class GoalService {
 
   Future<Goal> createGoal(String token, Goal goal) async {
     try {
-      print('Sending JSON: ${jsonEncode(goal.toJson())}'); // Debug JSON payload
+      // print('Sending JSON: ${jsonEncode(goal.toJson())}'); // Debug JSON payload
       final response = await http.post(
         Uri.parse(baseUrl),
         headers: {

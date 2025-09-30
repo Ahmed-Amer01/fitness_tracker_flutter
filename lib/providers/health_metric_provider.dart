@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/health_metric_model.dart';
 import '../services/health_metric_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HealthMetricProvider extends ChangeNotifier {
   final HealthMetricService _service = HealthMetricService();
@@ -19,7 +20,15 @@ class HealthMetricProvider extends ChangeNotifier {
   Future<void> _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('auth_token');
-    if (_token != null) await fetchMetrics();
+    if (_token != null) {
+      await fetchMetrics();
+    } else {
+      Fluttertoast.showToast(
+        msg: 'No authentication token found. Please log in.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
 
   Future<void> fetchMetrics() async {
@@ -29,14 +38,25 @@ class HealthMetricProvider extends ChangeNotifier {
     try {
       _metrics = await _service.fetchUserMetrics(_token!);
     } catch (e) {
-      print('Error fetching metrics: $e');
+      Fluttertoast.showToast(
+        msg: 'Failed to fetch metrics: $e',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
     _loading = false;
     notifyListeners();
   }
 
   Future<void> saveMetric(HealthMetric metric) async {
-    if (_token == null) return;
+    if (_token == null) {
+      Fluttertoast.showToast(
+        msg: 'No authentication token. Please log in.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
     _loading = true;
     notifyListeners();
     try {
@@ -45,26 +65,56 @@ class HealthMetricProvider extends ChangeNotifier {
           : 0;
       if (metric.id != null) {
         await _service.updateMetric(_token!, metric.id!, metric);
+        Fluttertoast.showToast(
+          msg: 'Metric updated successfully',
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
       } else {
         await _service.createMetric(_token!, metric);
+        Fluttertoast.showToast(
+          msg: 'Metric added successfully',
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
       }
       await fetchMetrics();
     } catch (e) {
-      print('Error saving metric: $e');
+      Fluttertoast.showToast(
+        msg: 'Failed to save metric: $e',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
     _loading = false;
     notifyListeners();
   }
 
   Future<void> deleteMetric(String id) async {
-    if (_token == null) return;
+    if (_token == null) {
+      Fluttertoast.showToast(
+        msg: 'No authentication token. Please log in.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
     _loading = true;
     notifyListeners();
     try {
       await _service.deleteMetric(_token!, id);
       await fetchMetrics();
+      Fluttertoast.showToast(
+        msg: 'Metric deleted successfully',
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
     } catch (e) {
-      print('Error deleting metric: $e');
+      Fluttertoast.showToast(
+        msg: 'Failed to delete metric: $e',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
     _loading = false;
     notifyListeners();
