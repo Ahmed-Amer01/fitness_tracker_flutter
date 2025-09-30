@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         );
         
         await Future.delayed(Duration(seconds: 2));
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushReplacementNamed(context, '/main_layout'); // <-- Updated route
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

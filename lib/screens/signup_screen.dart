@@ -111,7 +111,7 @@ class _SignupScreenState extends State<SignupScreen>
 
         await Future.delayed(const Duration(seconds: 2));
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushReplacementNamed(context, '/main_layout');
         }
       } else {
         if (!mounted) return;
