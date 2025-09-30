@@ -1,4 +1,4 @@
-import 'dart:io' show File; // import مع فلتر للموبايل بس
+import 'dart:io' show File;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -104,9 +104,9 @@ class _SignupScreenState extends State<SignupScreen>
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: 
-          Text('Signup successful! Redirecting...'),
-          backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Signup successful! Redirecting...'),
+              backgroundColor: Colors.green),
         );
 
         await Future.delayed(const Duration(seconds: 2));
@@ -127,12 +127,14 @@ class _SignupScreenState extends State<SignupScreen>
 
   Widget _buildProfileImage() {
     if (_profileImage == null) {
-      return Icon(Icons.camera_alt,
-          size: 40, color: AppColors.primaryDark);
+      return Icon(Icons.camera_alt, 
+                  size: 40, 
+                  color: AppColors.primaryDark
+                  );
     }
 
     if (kIsWeb) {
-      // في الويب نعرض الصورة من network
+      // For web, use Image.network
       return ClipOval(
         child: Image.network(
           _profileImage!.path,
@@ -142,7 +144,7 @@ class _SignupScreenState extends State<SignupScreen>
         ),
       );
     } else {
-      // على الموبايل نعرض الصورة من File
+      // For mobile, use Image.file
       return ClipOval(
         child: Image.file(
           File(_profileImage!.path),
@@ -156,6 +158,9 @@ class _SignupScreenState extends State<SignupScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.beige,
@@ -165,7 +170,7 @@ class _SignupScreenState extends State<SignupScreen>
             children: [
               SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height -
@@ -176,6 +181,25 @@ class _SignupScreenState extends State<SignupScreen>
                       child: Column(
                         children: [
                           const SizedBox(height: 20),
+
+                          // Logo Section
+                          Image.asset(
+                            'assets/images/fitnessLogo.png',
+                            fit: BoxFit.contain,
+                            width: screenWidth * 0.5,
+                            height: screenWidth * 0.2,
+                            color: Theme.of(context).appBarTheme.iconTheme?.color,
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Error loading fitnessLogo.png: $error\n$stackTrace');
+                              return Icon(
+                                Icons.image_not_supported,
+                                color: Theme.of(context).appBarTheme.iconTheme?.color,
+                                size: screenWidth * 0.1,
+                              );
+                            },
+                          ),
+                          SizedBox(height: isSmallScreen ? 24 : 32),
+
                           SlideTransition(
                             position: _slideAnimation,
                             child: FadeTransition(
@@ -320,7 +344,7 @@ class _SignupScreenState extends State<SignupScreen>
                                               : _signup,
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
-                                                AppColors.blue900,
+                                              AppColors.blue900,
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 16),
                                             shape: RoundedRectangleBorder(
