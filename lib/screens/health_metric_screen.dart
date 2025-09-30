@@ -257,7 +257,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                           f == 'weight' ? Icons.fitness_center : Icons.height,
                                                           color: AppColors.blue900,
                                                         ),
-                                                        border: const OutlineInputBorder()
+                                                        border: const OutlineInputBorder(),
                                                       ),
                                                       validator: (value) {
                                                         if (value == null || value.isEmpty) {
@@ -281,7 +281,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           decoration: InputDecoration(
                                             labelText: 'BMI (auto)',
                                             prefixIcon: const Icon(Icons.favorite, color: AppColors.blue900),
-                                            border: const OutlineInputBorder()
+                                            border: const OutlineInputBorder(),
                                           ),
                                           controller: TextEditingController(
                                             text: bmi == 0 ? '—' : '${bmi.toStringAsFixed(1)} (${_getBmiStatus(bmi)})',
@@ -311,7 +311,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           decoration: InputDecoration(
                                             labelText: 'Date',
                                             prefixIcon: const Icon(Icons.date_range, color: AppColors.blue900),
-                                            border: const OutlineInputBorder()
+                                            border: const OutlineInputBorder(),
                                           ),
                                           validator: (value) {
                                             if (value == null || value.isEmpty) {
@@ -358,7 +358,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                           decoration: InputDecoration(
                                                             labelText: f[0].toUpperCase() + f.substring(1),
                                                             prefixIcon: const Icon(Icons.straighten, color: AppColors.blue900),
-                                                          border: const OutlineInputBorder()
+                                                            border: const OutlineInputBorder(),
                                                           ),
                                                           validator: (value) {
                                                             if (value != null && value.isNotEmpty && double.tryParse(value) == null) {
@@ -477,10 +477,15 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                               reservedSize: 30,
                                               getTitlesWidget: (value, meta) {
                                                 final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                                                return Text(
-                                                  '${date.month}-${date.day}',
-                                                  style: const TextStyle(fontSize: 12),
+                                                final hasPoint = provider.metrics.any(
+                                                  (m) => m.date.millisecondsSinceEpoch == value.toInt(),
                                                 );
+                                                return hasPoint
+                                                    ? Text(
+                                                        '${date.month}-${date.day}',
+                                                        style: const TextStyle(fontSize: 10),
+                                                      )
+                                                    : const Text('');
                                               },
                                             ),
                                           ),
@@ -489,10 +494,15 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                               showTitles: true,
                                               reservedSize: 40,
                                               getTitlesWidget: (value, meta) {
-                                                return Text(
-                                                  value.toInt().toString(),
-                                                  style: const TextStyle(fontSize: 12),
+                                                final hasPoint = provider.metrics.any(
+                                                  (m) => m.weight == value,
                                                 );
+                                                return hasPoint
+                                                    ? Text(
+                                                        value.toInt().toString(),
+                                                        style: const TextStyle(fontSize: 10),
+                                                      )
+                                                    : const Text('');
                                               },
                                             ),
                                           ),
@@ -524,8 +534,21 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           touchTooltipData: LineTouchTooltipData(
                                             getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
                                               final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                                              final metric = provider.metrics.firstWhere(
+                                                (m) => m.date.millisecondsSinceEpoch == spot.x.toInt(),
+                                              );
                                               return LineTooltipItem(
-                                                'Date: ${date.month}-${date.day}\nWeight: ${spot.y.toStringAsFixed(1)} kg',
+                                                'Date: ${_dateFormat.format(date)}\n'
+                                                'Weight: ${metric.weight.toStringAsFixed(1)} kg\n'
+                                                'Height: ${metric.height.toStringAsFixed(1)} cm\n'
+                                                'BMI: ${metric.bmi.toStringAsFixed(1)}\n'
+                                                'Chest: ${metric.bodyMeasurements.chest.toStringAsFixed(1)} cm\n'
+                                                'Waist: ${metric.bodyMeasurements.waist.toStringAsFixed(1)} cm\n'
+                                                'Hips: ${metric.bodyMeasurements.hips.toStringAsFixed(1)} cm\n'
+                                                'Neck: ${metric.bodyMeasurements.neck.toStringAsFixed(1)} cm\n'
+                                                'Biceps: ${metric.bodyMeasurements.biceps.toStringAsFixed(1)} cm\n'
+                                                'Thighs: ${metric.bodyMeasurements.thighs.toStringAsFixed(1)} cm\n'
+                                                'Calves: ${metric.bodyMeasurements.calves.toStringAsFixed(1)} cm',
                                                 const TextStyle(color: Colors.white, fontSize: 12),
                                               );
                                             }).toList(),
