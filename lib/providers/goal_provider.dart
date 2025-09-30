@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../models/goal_model.dart';
+import '../services/goal_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/health_metric_model.dart';
-import '../services/health_metric_service.dart';
 
-class HealthMetricProvider extends ChangeNotifier {
-  final HealthMetricService _service = HealthMetricService();
-  List<HealthMetric> _metrics = [];
+class GoalProvider extends ChangeNotifier {
+  final GoalService _service = GoalService();
+  List<Goal> _goals = [];
   bool _loading = false;
   String? _token;
 
-  List<HealthMetric> get metrics => _metrics;
+  List<Goal> get goals => _goals;
   bool get loading => _loading;
 
-  HealthMetricProvider() {
+  GoalProvider() {
     _loadToken();
   }
 
@@ -21,7 +21,7 @@ class HealthMetricProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('auth_token');
     if (_token != null) {
-      await fetchMetrics();
+      await fetchGoals();
     } else {
       Fluttertoast.showToast(
         msg: 'No authentication token found. Please log in.',
@@ -31,15 +31,16 @@ class HealthMetricProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchMetrics() async {
+  Future<void> fetchGoals() async {
     if (_token == null) return;
     _loading = true;
     notifyListeners();
     try {
-      _metrics = await _service.fetchUserMetrics(_token!);
+      _goals = await _service.fetchUserGoals(_token!);
+      _goals.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Failed to fetch metrics: $e',
+        msg: 'Failed to fetch goals: $e',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
@@ -48,7 +49,7 @@ class HealthMetricProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveMetric(HealthMetric metric) async {
+  Future<void> saveGoal(Goal goal) async {
     if (_token == null) {
       Fluttertoast.showToast(
         msg: 'No authentication token. Please log in.',
@@ -60,28 +61,25 @@ class HealthMetricProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
     try {
-      metric.bmi = metric.height > 0
-          ? metric.weight / ((metric.height / 100) * (metric.height / 100))
-          : 0;
-      if (metric.id != null) {
-        await _service.updateMetric(_token!, metric.id!, metric);
+      if (goal.id != null) {
+        await _service.updateGoal(_token!, goal.id!, goal);
         Fluttertoast.showToast(
-          msg: 'Metric updated successfully',
+          msg: 'Goal updated successfully',
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
       } else {
-        await _service.createMetric(_token!, metric);
+        await _service.createGoal(_token!, goal);
         Fluttertoast.showToast(
-          msg: 'Metric added successfully',
+          msg: 'Goal added successfully',
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
       }
-      await fetchMetrics();
+      await fetchGoals();
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Failed to save metric: $e',
+        msg: 'Failed to save goal: $e',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
@@ -90,7 +88,7 @@ class HealthMetricProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteMetric(String id) async {
+  Future<void> deleteGoal(String id) async {
     if (_token == null) {
       Fluttertoast.showToast(
         msg: 'No authentication token. Please log in.',
@@ -102,21 +100,32 @@ class HealthMetricProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
     try {
-      await _service.deleteMetric(_token!, id);
-      await fetchMetrics();
+      await _service.deleteGoal(_token!, id);
+      await fetchGoals();
       Fluttertoast.showToast(
-        msg: 'Metric deleted successfully',
+        msg: 'Goal deleted successfully',
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Failed to delete metric: $e',
+        msg: 'Failed to delete goal: $e',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
     }
     _loading = false;
     notifyListeners();
+  }
+
+  Map<String, int> getStatusCounts() {
+    return _goals.fold<Map<String, int>>(
+      {'NOT_STARTED': 0, 'IN_PROGRESS': 0, 'ACHIEVED': 0, 'ABANDONED': 0},
+      (map, goal) {
+        final statusKey = goal.status.serverValue;
+        map[statusKey] = (map[statusKey] ?? 0) + 1;
+        return map;
+      },
+    );
   }
 }

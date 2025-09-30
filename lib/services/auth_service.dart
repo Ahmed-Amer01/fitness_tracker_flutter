@@ -251,12 +251,20 @@ class AuthService {
       final response = await http.Response.fromStream(streamedResponse);
       final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && data['newToken'] != null) {
+        return AuthResult(
+          success: true,
+          token: data['newToken'],
+          message: 'Profile updated successfully',
+        );
+      } 
+      else if (response.statusCode == 200) {
         return AuthResult(
           success: true,
           message: data['message'] ?? 'Profile updated successfully',
         );
-      } else {
+      } 
+      else {
         final msg = data['message'] ?? 'Profile update failed';
         return AuthResult(success: false, message: msg);
       }
