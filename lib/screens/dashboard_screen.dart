@@ -8,7 +8,7 @@ import '../widgets/loading_overlay.dart';
 import '../widgets/custom_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -28,6 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _preloadIcon(context);
     });
   }
+
 
   void _preloadIcon(BuildContext context) {
     precacheImage(const AssetImage('assets/images/fitnessLogo2.png'), context, onError: (exception, stackTrace) {
@@ -215,15 +216,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 children: [
                                   Text(
                                     'Welcome back,',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                   Text(
                                     user?.fullName ?? 'User',
+
                                     style: Theme.of(context).textTheme.headlineMedium,
                                   ),
                                   Text(
                                     'Ready for your workout?',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
@@ -303,29 +307,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         _buildActionCard(
                           context,
-                          'Start Workout',
-                          Icons.play_arrow,
+                          'Workouts',
+                          Icons.fitness_center,
                           Colors.blue,
                           () {
-                            // Navigate to workout screen
+                            Navigator.pushNamed(context, '/workouts');
                           },
                         ),
                         _buildActionCard(
                           context,
-                          'Track Food',
+                          'Nutrition',
                           Icons.restaurant,
                           Colors.green,
                           () {
-                            // Navigate to food tracking
+                            Navigator.pushNamed(context, '/nutrition');
                           },
                         ),
                         _buildActionCard(
                           context,
-                          'View Progress',
-                          Icons.trending_up,
+                          'Exercises',
+                          Icons.sports_gymnastics,
                           Colors.purple,
                           () {
-                            // Navigate to progress screen
+                            Navigator.pushNamed(context, '/exercises');
                           },
                         ),
                         _buildActionCard(
@@ -389,8 +393,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-              if (_isLoading)
-                const LoadingOverlay(text: 'Updating Theme...'),
+              if (_isLoading) const LoadingOverlay(text: 'Updating Theme...'),
             ],
           ),
         );
@@ -398,8 +401,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatCard(
-      BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String title, String value,
+      IconData icon, Color color) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -434,6 +437,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+
   Widget _buildActionCard(
       BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
     return Card(
@@ -461,11 +465,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, AuthProvider authProvider, ThemeProvider themeProvider) {
+  void _showLogoutDialog(BuildContext context, AuthProvider authProvider,
+      ThemeProvider themeProvider) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+
           title: Text(
             'Logout',
             style: Theme.of(context).textTheme.headlineMedium,
@@ -479,6 +485,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
+
               child: Text(
                 'Cancel',
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -491,6 +498,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 themeProvider.setAuthScreens(true);
                 Navigator.pushReplacementNamed(context, '/');
               },
+
               child: Text(
                 'Logout',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(

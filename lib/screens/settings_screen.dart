@@ -9,7 +9,7 @@ import '../widgets/custom_app_bar.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -154,7 +154,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
         email: _emailController.text,
-        password: _passwordController.text.isEmpty ? null : _passwordController.text,
+        password:
+            _passwordController.text.isEmpty ? null : _passwordController.text,
         theme: _selectedTheme,
         notificationsEnabled: _notificationsEnabled,
         workoutReminderTime: _workoutReminderController.text,
@@ -164,14 +165,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (result.success) {
         // Update theme based on profile change
         themeProvider.setThemeFromProfile(_selectedTheme);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile updated successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Clear password field
         _passwordController.clear();
       } else {
@@ -227,10 +228,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       try {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
 
         final result = await authProvider.deleteAccount();
-        
+
         if (result.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -238,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          
+
           // Reset theme and navigate to welcome
           themeProvider.setAuthScreens(true);
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -357,7 +359,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Email is required';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value)) {
                             return 'Invalid email format';
                           }
                           return null;
@@ -370,11 +373,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         controller: _passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                          labelText: 'New Password (leave blank to keep current)',
+                          labelText:
+                              'New Password (leave blank to keep current)',
                           prefixIcon: Icon(Icons.lock),
                         ),
                         validator: (value) {
-                          if (value != null && value.isNotEmpty && value.length < 6) {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              value.length < 6) {
                             return 'Password must be at least 6 characters';
                           }
                           return null;
@@ -384,13 +390,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       // Theme Selection
                       DropdownButtonFormField<String>(
-                        value: _selectedTheme,
+                        initialValue: _selectedTheme,
                         decoration: const InputDecoration(
                           labelText: 'Theme',
                           prefixIcon: Icon(Icons.palette),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'LIGHT', child: Text('Light')),
+                          DropdownMenuItem(
+                              value: 'LIGHT', child: Text('Light')),
                           DropdownMenuItem(value: 'DARK', child: Text('Dark')),
                         ],
                         onChanged: (value) {
@@ -425,7 +432,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         keyboardType: TextInputType.datetime,
                         validator: (value) {
                           if (value != null && value.isNotEmpty) {
-                            if (!RegExp(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$').hasMatch(value)) {
+                            if (!RegExp(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$')
+                                .hasMatch(value)) {
                               return 'Invalid time format (use HH:MM)';
                             }
                           }
@@ -438,12 +446,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ElevatedButton(
                         onPressed: _isLoading ? null : _updateProfile,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:AppColors.blue900,
+                          backgroundColor: AppColors.blue900,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: const Text(
                           'Update Profile',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -458,7 +467,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         child: const Text(
                           'Delete Account',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -469,8 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           // Loading Overlay
-          if (_isLoading)
-            const LoadingOverlay(text: 'Updating Profile...'),
+          if (_isLoading) const LoadingOverlay(text: 'Updating Profile...'),
         ],
       ),
     );
