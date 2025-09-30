@@ -24,7 +24,8 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {};
   final measurementFields = ["chest", "waist", "hips", "neck", "biceps", "thighs", "calves"];
-  final topFields = ["weight", "height"];
+  final topFields = ["weight", "height", "date"];
+  final _dateFormat = DateFormat('yyyy-MM-dd');
 
   @override
   void initState() {
@@ -52,7 +53,13 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
   void initControllers(HealthMetric metric) {
     controllers.clear();
     for (var f in topFields) {
-      controllers[f] = TextEditingController(text: metric.toJson()[f]?.toString() ?? '');
+      if (f == 'date') {
+        controllers[f] = TextEditingController(
+          text: metric.date != null ? _dateFormat.format(metric.date) : _dateFormat.format(DateTime.now()),
+        );
+      } else {
+        controllers[f] = TextEditingController(text: metric.toJson()[f]?.toString() ?? '');
+      }
     }
     for (var f in measurementFields) {
       controllers[f] = TextEditingController(text: metric.bodyMeasurements.toJson()[f]?.toString() ?? '');
@@ -67,13 +74,14 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
     double weight = double.tryParse(controllers['weight']?.text ?? '0') ?? 0;
     double height = double.tryParse(controllers['height']?.text ?? '0') ?? 0;
     double bmi = height > 0 ? weight / ((height / 100) * (height / 100)) : 0;
+    DateTime date = DateTime.tryParse(controllers['date']?.text ?? '') ?? DateTime.now();
 
     return HealthMetric(
       id: id,
       weight: weight,
       height: height,
       bmi: bmi,
-      date: DateTime.now(),
+      date: date,
       bodyMeasurements: BodyMeasurements(
         chest: body['chest']!,
         waist: body['waist']!,
@@ -96,6 +104,20 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
     if (bmi < 18.5) return 'Underweight';
     if (bmi < 25) return 'Healthy';
     return 'Overweight';
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.tryParse(controllers['date']?.text ?? '') ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        controllers['date']?.text = _dateFormat.format(picked);
+      });
+    }
   }
 
   @override
@@ -218,6 +240,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                         const SizedBox(height: 16),
                                         Row(
                                           children: topFields
+                                              .where((f) => f != 'date')
                                               .map(
                                                 (f) => Expanded(
                                                   child: Padding(
@@ -281,6 +304,26 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 16),
+                                        TextFormField(
+                                          controller: controllers['date'],
+                                          readOnly: true,
+                                          onTap: () => _selectDate(context),
+                                          decoration: InputDecoration(
+                                            labelText: 'Date',
+                                            prefixIcon: const Icon(Icons.date_range, color: AppColors.blue900),
+                                            border: const OutlineInputBorder()
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Date is required';
+                                            }
+                                            if (DateTime.tryParse(value) == null) {
+                                              return 'Enter a valid date';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 16),
                                         TextButton(
                                           onPressed: () {
                                             setState(() {
@@ -300,27 +343,30 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                 shrinkWrap: true,
                                                 physics: const NeverScrollableScrollPhysics(),
                                                 childAspectRatio: constraints.maxWidth > 400 ? 5.5 : 4.5,
-                                                mainAxisSpacing: 16,
-                                                crossAxisSpacing: 16,
+                                                mainAxisSpacing: 8,
+                                                crossAxisSpacing: 8,
                                                 children: measurementFields
                                                     .map(
-                                                      (f) => TextFormField(
-                                                        controller: controllers[f],
-                                                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                                        inputFormatters: [
-                                                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                        ],
-                                                        decoration: InputDecoration(
-                                                          labelText: f[0].toUpperCase() + f.substring(1),
-                                                          prefixIcon: const Icon(Icons.straighten, color: AppColors.blue900),
+                                                      (f) => Padding(
+                                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                                        child: TextFormField(
+                                                          controller: controllers[f],
+                                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                                          inputFormatters: [
+                                                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                          ],
+                                                          decoration: InputDecoration(
+                                                            labelText: f[0].toUpperCase() + f.substring(1),
+                                                            prefixIcon: const Icon(Icons.straighten, color: AppColors.blue900),
                                                           border: const OutlineInputBorder()
+                                                          ),
+                                                          validator: (value) {
+                                                            if (value != null && value.isNotEmpty && double.tryParse(value) == null) {
+                                                              return 'Enter a valid number';
+                                                            }
+                                                            return null;
+                                                          },
                                                         ),
-                                                        validator: (value) {
-                                                          if (value != null && value.isNotEmpty && double.tryParse(value) == null) {
-                                                            return 'Enter a valid number';
-                                                          }
-                                                          return null;
-                                                        },
                                                       ),
                                                     )
                                                     .toList(),
@@ -589,7 +635,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                             cells: [
                                               DataCell(
                                                 Text(
-                                                  '${metric.date.toLocal()}'.split(' ')[0],
+                                                  _dateFormat.format(metric.date),
                                                   style: Theme.of(context).textTheme.bodyMedium,
                                                 ),
                                               ),
@@ -620,7 +666,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     IconButton(
-                                                      icon: const Icon(Icons.edit, color: AppColors.blue900),
+                                                      icon: const Icon(Icons.edit, color: AppColors.blue600),
                                                       onPressed: () {
                                                         setState(() {
                                                           editingMetric = metric;
