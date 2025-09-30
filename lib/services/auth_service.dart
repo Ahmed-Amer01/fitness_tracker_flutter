@@ -6,9 +6,8 @@ import '../models/user_model.dart';
 import 'package:http_parser/http_parser.dart';
 
 class AuthService {
-  static const String baseUrl =
-      'http://10.0.2.2:8080'; // Change to your backend URL
-
+  static const String baseUrl = 'http://10.0.2.2:8080'; // Change to your backend URL
+  
   // For Android emulator, use: http://10.0.2.2:8080
   // For iOS simulator, use: http://localhost:8080
   // For physical device, use your computer's IP: http://192.168.x.x:8080
@@ -68,7 +67,7 @@ class AuthService {
       if (profilePicPath != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
-            'profilePic',
+            'profilePic', 
             profilePicPath,
             contentType: MediaType(
                 'image', _getMimeType(profilePicPath)), // set proper MIME
