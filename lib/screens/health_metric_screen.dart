@@ -128,7 +128,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primaryDark,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -150,7 +149,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primaryDark,
                             ),
                           ),
                           AnimatedContainer(
@@ -179,7 +177,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                 }
                               },
                               icon: const Icon(Icons.add),
-                              label: Text(showForm ? 'Close Form' : 'Add Metric +'),
+                              label: Text(showForm ? 'Close Form' : 'Add Metric'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.blue900,
                                 foregroundColor: Colors.white,
@@ -215,7 +213,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
-                                            color: AppColors.primaryDark,
                                           ),
                                         ),
                                         const SizedBox(height: 16),
@@ -237,9 +234,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                           f == 'weight' ? Icons.fitness_center : Icons.height,
                                                           color: AppColors.blue900,
                                                         ),
-                                                        border: const OutlineInputBorder(),
-                                                        filled: true,
-                                                        fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[100],
+                                                        border: const OutlineInputBorder()
                                                       ),
                                                       validator: (value) {
                                                         if (value == null || value.isEmpty) {
@@ -263,9 +258,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                           decoration: InputDecoration(
                                             labelText: 'BMI (auto)',
                                             prefixIcon: const Icon(Icons.favorite, color: AppColors.blue900),
-                                            border: const OutlineInputBorder(),
-                                            filled: true,
-                                            fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[100],
+                                            border: const OutlineInputBorder()
                                           ),
                                           controller: TextEditingController(
                                             text: bmi == 0 ? '—' : '${bmi.toStringAsFixed(1)} (${_getBmiStatus(bmi)})',
@@ -275,7 +268,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                         Container(
                                           height: 8,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[700] : Colors.grey[300],
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: FractionallySizedBox(
@@ -307,7 +299,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                 crossAxisCount: constraints.maxWidth > 400 ? 2 : 1,
                                                 shrinkWrap: true,
                                                 physics: const NeverScrollableScrollPhysics(),
-                                                childAspectRatio: constraints.maxWidth > 400 ? 3.5 : 2.5,
+                                                childAspectRatio: constraints.maxWidth > 400 ? 5.5 : 4.5,
                                                 mainAxisSpacing: 16,
                                                 crossAxisSpacing: 16,
                                                 children: measurementFields
@@ -321,9 +313,7 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                         decoration: InputDecoration(
                                                           labelText: f[0].toUpperCase() + f.substring(1),
                                                           prefixIcon: const Icon(Icons.straighten, color: AppColors.blue900),
-                                                          border: const OutlineInputBorder(),
-                                                          filled: true,
-                                                          fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[100],
+                                                          border: const OutlineInputBorder()
                                                         ),
                                                         validator: (value) {
                                                           if (value != null && value.isNotEmpty && double.tryParse(value) == null) {
@@ -426,7 +416,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.primaryDark,
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -522,7 +511,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryDark,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -658,7 +646,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                                 style: TextStyle(
                                                                   fontSize: 24,
                                                                   fontWeight: FontWeight.bold,
-                                                                  color: AppColors.primaryDark,
                                                                 ),
                                                               ),
                                                               content: const Text(
@@ -737,7 +724,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
         key: ValueKey(DateTime.now().second),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.blue[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.blue900.withOpacity(0.2)),
         ),
@@ -752,7 +738,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primaryDark,
                 ),
                 textAlign: TextAlign.center,
               ),
