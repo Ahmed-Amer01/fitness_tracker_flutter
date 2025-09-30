@@ -6,6 +6,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import '../models/goal_model.dart';
 import '../providers/goal_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/custom_app_bar.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({super.key});
@@ -103,14 +104,10 @@ class _GoalScreenState extends State<GoalScreen> {
     return Consumer<GoalProvider>(
       builder: (context, provider, child) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text(
-              'Goals',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          appBar: CustomAppBar(
+            title: 'Goals',
+            isDashboard: false,
+            showActions: true,
           ),
           body: provider.loading
               ? const Center(child: CircularProgressIndicator())
