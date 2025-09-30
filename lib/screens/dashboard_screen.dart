@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
-import '../providers/health_metric_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/loading_overlay.dart';
 import '../widgets/custom_app_bar.dart';
@@ -23,7 +22,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ThemeProvider>(context, listen: false).setAuthScreens(false);
-      Provider.of<HealthMetricProvider>(context, listen: false).fetchMetrics();
       _loadProfileImage();
       _preloadIcon(context);
     });
@@ -179,10 +177,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 360;
 
-    return Consumer3<AuthProvider, ThemeProvider, HealthMetricProvider>(
-      builder: (context, authProvider, themeProvider, healthProvider, child) {
+    return Consumer2<AuthProvider, ThemeProvider>(
+      builder: (context, authProvider, themeProvider, child) {
         final user = authProvider.user;
-        final metrics = healthProvider.metrics;
 
         return Scaffold(
           appBar: CustomAppBar(
