@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/services.dart';
 import '../models/health_metric_model.dart';
+import '../models/body_measurements.dart';
 import '../providers/health_metric_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/custom_app_bar.dart';
