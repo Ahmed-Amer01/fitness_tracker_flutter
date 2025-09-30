@@ -476,16 +476,41 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                               showTitles: true,
                                               reservedSize: 30,
                                               getTitlesWidget: (value, meta) {
-                                                final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                                                final hasPoint = provider.metrics.any(
-                                                  (m) => m.date.millisecondsSinceEpoch == value.toInt(),
+                                                // Sort metrics by date to get proper order
+                                                final sortedMetrics = provider.metrics.toList()
+                                                  ..sort((a, b) => a.date.compareTo(b.date));
+                                                
+                                                // Check if this value matches any actual data point
+                                                final matchingMetric = sortedMetrics.firstWhere(
+                                                  (m) => m.date.millisecondsSinceEpoch.toDouble() == value,
+                                                  orElse: () => HealthMetric(
+                                                    weight: 0,
+                                                    height: 0,
+                                                    bmi: 0,
+                                                    date: DateTime.fromMillisecondsSinceEpoch(0),
+                                                    bodyMeasurements: BodyMeasurements(
+                                                      chest: 0, waist: 0, hips: 0, neck: 0,
+                                                      biceps: 0, thighs: 0, calves: 0,
+                                                    ),
+                                                  ),
                                                 );
-                                                return hasPoint
-                                                    ? Text(
-                                                        '${date.month}-${date.day}',
-                                                        style: const TextStyle(fontSize: 10),
-                                                      )
-                                                    : const Text('');
+                                                
+                                                // Only show label if we found a matching metric
+                                                if (matchingMetric.date.millisecondsSinceEpoch != 0) {
+                                                  return Padding(
+                                                    padding: const EdgeInsets.only(top: 8),
+                                                    child: Text(
+                                                      DateFormat('MM-dd').format(matchingMetric.date),
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Theme.of(context).brightness == Brightness.dark
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                return const SizedBox.shrink();
                                               },
                                             ),
                                           ),
@@ -494,51 +519,76 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                               showTitles: true,
                                               reservedSize: 40,
                                               getTitlesWidget: (value, meta) {
+                                                // Check if this value matches any actual weight
                                                 final hasPoint = provider.metrics.any(
-                                                  (m) => m.weight == value,
+                                                  (m) => (m.weight - value).abs() < 0.01,
                                                 );
-                                                return hasPoint
-                                                    ? Text(
-                                                        value.toInt().toString(),
-                                                        style: const TextStyle(fontSize: 10),
-                                                      )
-                                                    : const Text('');
+                                                
+                                                if (hasPoint) {
+                                                  return Text(
+                                                    value.toInt().toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Theme.of(context).brightness == Brightness.dark
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                    ),
+                                                  );
+                                                }
+                                                return const SizedBox.shrink();
                                               },
                                             ),
                                           ),
-                                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                          topTitles: const AxisTitles(
+                                              sideTitles: SideTitles(showTitles: false)),
+                                          rightTitles: const AxisTitles(
+                                              sideTitles: SideTitles(showTitles: false)),
                                         ),
-                                        borderData: FlBorderData(show: false),
+                                        borderData: FlBorderData(
+                                          show: true,
+                                          border: Border(
+                                            left: BorderSide(
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              width: 1,
+                                            ),
+                                            bottom: BorderSide(
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
                                         lineBarsData: [
                                           LineChartBarData(
                                             spots: provider.metrics
-                                                .asMap()
-                                                .entries
-                                                .map((e) => FlSpot(
-                                                      e.value.date.millisecondsSinceEpoch.toDouble(),
-                                                      e.value.weight,
+                                                .map((m) => FlSpot(
+                                                      m.date.millisecondsSinceEpoch.toDouble(),
+                                                      m.weight,
                                                     ))
-                                                .toList(),
+                                                .toList()
+                                              ..sort((a, b) => a.x.compareTo(b.x)),
                                             isCurved: true,
                                             color: AppColors.skyBrand,
-                                            barWidth: 2,
+                                            barWidth: 3,
                                             dotData: const FlDotData(show: true),
                                             belowBarData: BarAreaData(
                                               show: true,
-                                              color: AppColors.skyBrand.withOpacity(0.2),
+                                              color: AppColors.skyBrand.withValues(alpha: 0.2),
                                             ),
                                           ),
                                         ],
                                         lineTouchData: LineTouchData(
                                           touchTooltipData: LineTouchTooltipData(
-                                            getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
-                                              final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                                            getTooltipItems: (touchedSpots) =>
+                                                touchedSpots.map((spot) {
                                               final metric = provider.metrics.firstWhere(
-                                                (m) => m.date.millisecondsSinceEpoch == spot.x.toInt(),
+                                                (m) => m.date.millisecondsSinceEpoch.toDouble() == spot.x,
                                               );
                                               return LineTooltipItem(
-                                                'Date: ${_dateFormat.format(date)}\n'
+                                                'Date: ${_dateFormat.format(metric.date)}\n'
                                                 'Weight: ${metric.weight.toStringAsFixed(1)} kg\n'
                                                 'Height: ${metric.height.toStringAsFixed(1)} cm\n'
                                                 'BMI: ${metric.bmi.toStringAsFixed(1)}\n'
@@ -549,6 +599,168 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                                 'Biceps: ${metric.bodyMeasurements.biceps.toStringAsFixed(1)} cm\n'
                                                 'Thighs: ${metric.bodyMeasurements.thighs.toStringAsFixed(1)} cm\n'
                                                 'Calves: ${metric.bodyMeasurements.calves.toStringAsFixed(1)} cm',
+                                                const TextStyle(color: Colors.white, fontSize: 12),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      // BMI Trend Chart
+                      if (provider.metrics.isNotEmpty)
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: Card(
+                            key: ValueKey('bmi-${provider.metrics.length}'),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'BMI Trend',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SizedBox(
+                                    height: 200,
+                                    child: LineChart(
+                                      LineChartData(
+                                        gridData: const FlGridData(show: false),
+                                        titlesData: FlTitlesData(
+                                          bottomTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              reservedSize: 30,
+                                              getTitlesWidget: (value, meta) {
+                                                // Get all unique X values (timestamps) from actual data
+                                                final dataPoints = provider.metrics
+                                                    .map((m) => m.date.millisecondsSinceEpoch.toDouble())
+                                                    .toSet()
+                                                    .toList()
+                                                  ..sort();
+                                                
+                                                // Only show label if this value is one of our actual data points
+                                                if (dataPoints.contains(value)) {
+                                                  final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                                                  return Padding(
+                                                    padding: const EdgeInsets.only(top: 8),
+                                                    child: Text(
+                                                      DateFormat('MM-dd').format(date),
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Theme.of(context).brightness == Brightness.dark
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                
+                                                return const SizedBox.shrink();
+                                              },
+                                            ),
+                                          ),
+                                          leftTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              reservedSize: 40,
+                                              getTitlesWidget: (value, meta) {
+                                                // Get all unique BMI values from actual data
+                                                final dataPoints = provider.metrics
+                                                    .map((m) => m.bmi)
+                                                    .toSet()
+                                                    .toList();
+                                                
+                                                // Only show label if this value matches one of our BMI values
+                                                // Use tolerance for floating point comparison
+                                                final hasMatch = dataPoints.any(
+                                                  (bmi) => (bmi - value).abs() < 0.1,
+                                                );
+                                                
+                                                if (hasMatch) {
+                                                  return Text(
+                                                    value.toStringAsFixed(1),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Theme.of(context).brightness == Brightness.dark
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                    ),
+                                                  );
+                                                }
+                                                
+                                                return const SizedBox.shrink();
+                                              },
+                                            ),
+                                          ),
+                                          topTitles: const AxisTitles(
+                                              sideTitles: SideTitles(showTitles: false)),
+                                          rightTitles: const AxisTitles(
+                                              sideTitles: SideTitles(showTitles: false)),
+                                        ),
+                                        borderData: FlBorderData(
+                                          show: true,
+                                          border: Border(
+                                            left: BorderSide(
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              width: 1,
+                                            ),
+                                            bottom: BorderSide(
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        lineBarsData: [
+                                          LineChartBarData(
+                                            spots: provider.metrics
+                                                .map((m) => FlSpot(
+                                                      m.date.millisecondsSinceEpoch.toDouble(),
+                                                      m.bmi,
+                                                    ))
+                                                .toList()
+                                              ..sort((a, b) => a.x.compareTo(b.x)),
+                                            isCurved: true,
+                                            color: Colors.red[500],
+                                            barWidth: 3,
+                                            dotData: const FlDotData(show: true),
+                                            belowBarData: BarAreaData(
+                                              show: true,
+                                              color: Colors.red.withValues(alpha: 0.2),
+                                            ),
+                                          ),
+                                        ],
+                                        lineTouchData: LineTouchData(
+                                          touchTooltipData: LineTouchTooltipData(
+                                            getTooltipItems: (touchedSpots) =>
+                                                touchedSpots.map((spot) {
+                                              final metric = provider.metrics.firstWhere(
+                                                (m) => m.date.millisecondsSinceEpoch.toDouble() == spot.x,
+                                              );
+                                              return LineTooltipItem(
+                                                'Date: ${_dateFormat.format(metric.date)}\n'
+                                                'BMI: ${metric.bmi.toStringAsFixed(1)} (${_getBmiStatus(metric.bmi)})\n'
+                                                'Weight: ${metric.weight.toStringAsFixed(1)} kg\n'
+                                                'Height: ${metric.height.toStringAsFixed(1)} cm',
                                                 const TextStyle(color: Colors.white, fontSize: 12),
                                               );
                                             }).toList(),
