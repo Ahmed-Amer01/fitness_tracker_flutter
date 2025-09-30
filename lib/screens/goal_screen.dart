@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import '../models/goal_model.dart';
 import '../providers/goal_provider.dart';
 import '../theme/app_theme.dart';
