@@ -64,6 +64,8 @@ class MyApp extends StatelessWidget {
             '/exercises': (context) => const ExercisesScreen(),
             '/nutrition': (context) => const NutritionScreen(),
             '/goals': (context) => const GoalScreen(),
+            '/dashboard': (context) => const DashboardScreen(),
+            '/settings': (context) => const SettingsScreen(),
           },
           debugShowCheckedModeBanner: false,
         );

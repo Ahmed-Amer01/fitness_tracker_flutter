@@ -6,14 +6,13 @@ import '../widgets/loading_overlay.dart';
 import '../theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -71,16 +70,16 @@ class _LoginScreenState extends State<LoginScreen>
         if (authProvider.user != null) {
           themeProvider.setThemeFromProfile(authProvider.user!.theme);
         }
-
+        
         // Set to non-auth screens mode
         themeProvider.setAuthScreens(false);
-
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Login successful! Redirecting...'),
-              backgroundColor: Colors.green),
+            content: Text('Login successful! Redirecting...'),
+          backgroundColor: Colors.green),
         );
-
+        
         await Future.delayed(Duration(seconds: 2));
         Navigator.pushReplacementNamed(context, '/main_layout'); // <-- Updated route
 
@@ -132,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               const SizedBox(height: 24),
-
+                              
                               const Text(
                                 'Welcome Back!',
                                 style: TextStyle(
