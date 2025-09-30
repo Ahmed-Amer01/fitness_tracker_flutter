@@ -140,27 +140,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(appBarTitle),
-        actions: [
-          IconButton(
-            onPressed: () {
-              final newTheme = themeProvider.isDark ? 'LIGHT' : 'DARK';
-              // themeProvider.toggleTheme(); // Immediate UI update, handled by setThemeFromProfile after backend call
-              _updateThemePreference(context, newTheme);
-            },
-            icon: Icon(
-              themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              _showLogoutDialog(context);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           IndexedStack(

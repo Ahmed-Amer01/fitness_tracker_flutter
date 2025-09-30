@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import 'post_detail_screen.dart';
 import 'add_post_screen.dart';
 import '../utils/api_config.dart';
+import '../widgets/custom_app_bar.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({Key? key}) : super(key: key);
@@ -170,6 +171,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Community',
+        isDashboard: true,
+        showActions: true,
+      ),
+
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
