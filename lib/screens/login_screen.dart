@@ -6,13 +6,14 @@ import '../widgets/loading_overlay.dart';
 import '../theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     });
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -38,7 +39,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero).animate(
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
@@ -69,18 +71,19 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         if (authProvider.user != null) {
           themeProvider.setThemeFromProfile(authProvider.user!.theme);
         }
-        
+
         // Set to non-auth screens mode
         themeProvider.setAuthScreens(false);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login successful! Redirecting...'),
-          backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Login successful! Redirecting...'),
+              backgroundColor: Colors.green),
         );
-        
+
         await Future.delayed(Duration(seconds: 2));
         Navigator.pushReplacementNamed(context, '/main_layout'); // <-- Updated route
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -102,10 +105,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             children: [
               SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      SizedBox(height: 80),
+                      const SizedBox(height: 80),
 
                       // Hero Section
                       SlideTransition(
@@ -118,19 +121,19 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               Container(
                                 width: 100,
                                 height: 100,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: AppColors.blue900,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.fitness_center,
                                   size: 50,
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(height: 24),
-                              
-                              Text(
+                              const SizedBox(height: 24),
+
+                              const Text(
                                 'Welcome Back!',
                                 style: TextStyle(
                                   fontSize: 28,
@@ -138,8 +141,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                   color: AppColors.primaryDark,
                                 ),
                               ),
-                              SizedBox(height: 8),
-                              Text(
+                              const SizedBox(height: 8),
+                              const Text(
                                 'Sign in to continue your fitness journey',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -152,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Login Form
                       SlideTransition(
@@ -165,39 +168,44 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.all(24),
+                              padding: const EdgeInsets.all(24),
                               child: Form(
                                 key: _formKey,
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     // Email
                                     TextFormField(
                                       controller: _emailController,
                                       keyboardType: TextInputType.emailAddress,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         labelText: 'Email',
-                                        prefixIcon: Icon(Icons.email, color: AppColors.gray400),
+                                        prefixIcon: Icon(Icons.email,
+                                            color: AppColors.gray400),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Email is required';
                                         }
-                                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                        if (!RegExp(
+                                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                            .hasMatch(value)) {
                                           return 'Invalid email format';
                                         }
                                         return null;
                                       },
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
 
                                     // Password
                                     TextFormField(
                                       controller: _passwordController,
                                       obscureText: true,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         labelText: 'Password',
-                                        prefixIcon: Icon(Icons.lock, color: AppColors.gray400),
+                                        prefixIcon: Icon(Icons.lock,
+                                            color: AppColors.gray400),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
@@ -206,19 +214,23 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                         return null;
                                       },
                                     ),
-                                    SizedBox(height: 32),
+                                    const SizedBox(height: 32),
 
                                     // Login Button
                                     ElevatedButton(
-                                      onPressed: authProvider.isLoading ? null : _login,
+                                      onPressed: authProvider.isLoading
+                                          ? null
+                                          : _login,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.blue900,
-                                        padding: EdgeInsets.symmetric(vertical: 16),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'Log In',
                                         style: TextStyle(
                                           fontSize: 16,
@@ -228,46 +240,52 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                       ),
                                     ),
 
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
 
                                     // Sign Up Link
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Text(
+                                        const Text(
                                           "Don't have an account? ",
-                                          style: TextStyle(color: AppColors.gray600),
+                                          style: TextStyle(
+                                              color: AppColors.gray600),
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            Navigator.pushReplacementNamed(context, '/register');
+                                            Navigator.pushReplacementNamed(
+                                                context, '/register');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Sign up',
                                             style: TextStyle(
                                               color: AppColors.skyBrand,
                                               fontWeight: FontWeight.w600,
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
 
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
 
                                     // Forgot Password Link
                                     Center(
                                       child: GestureDetector(
                                         onTap: () {
-                                          Navigator.pushNamed(context, '/reset-password');
+                                          Navigator.pushNamed(
+                                              context, '/reset-password');
                                         },
-                                        child: Text(
+                                        child: const Text(
                                           'Forgot Password?',
                                           style: TextStyle(
                                             color: AppColors.skyBrand,
                                             fontWeight: FontWeight.w500,
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
                                         ),
                                       ),
@@ -280,14 +298,14 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Back to Welcome
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/');
                         },
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.arrow_back, color: AppColors.skyBrand),
@@ -309,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
               // Loading Overlay
               if (authProvider.isLoading)
-                LoadingOverlay(text: 'Logging In...'),
+                const LoadingOverlay(text: 'Logging In...'),
             ],
           );
         },

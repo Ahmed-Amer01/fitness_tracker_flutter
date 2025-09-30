@@ -179,8 +179,13 @@ class AuthProvider extends ChangeNotifier {
         workoutReminderTime: workoutReminderTime,
         profilePicPath: profilePicPath,
       );
-      
-      if (result.success) {
+
+      if (result.success && result.token != null) {
+        _token = result.token;
+        await _saveToken(_token!);
+        await fetchUserProfile();
+      }
+      else if (result.success) {
         // Refresh user profile after successful update
         await fetchUserProfile();
       }
