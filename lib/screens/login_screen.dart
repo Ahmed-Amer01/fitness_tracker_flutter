@@ -81,8 +81,9 @@ class _LoginScreenState extends State<LoginScreen>
               backgroundColor: Colors.green),
         );
 
-        await Future.delayed(const Duration(seconds: 2));
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        await Future.delayed(Duration(seconds: 2));
+        Navigator.pushReplacementNamed(context, '/main_layout'); // <-- Updated route
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

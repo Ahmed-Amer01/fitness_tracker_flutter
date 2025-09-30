@@ -24,6 +24,13 @@ class AppTheme {
       brightness: Brightness.light,
       primaryColor: AppColors.primaryDark,
       scaffoldBackgroundColor: AppColors.beige,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.beige,
+        selectedItemColor: AppColors.primaryDark,
+        unselectedItemColor: AppColors.gray600,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -109,6 +116,13 @@ class AppTheme {
       brightness: Brightness.dark,
       primaryColor: AppColors.skyBrand,
       scaffoldBackgroundColor: AppColors.darkBackground,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.darkBackground,
+        selectedItemColor: AppColors.skyBrand,
+        unselectedItemColor: AppColors.gray400,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
