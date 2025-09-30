@@ -5,6 +5,7 @@ import '../providers/theme_provider.dart';
 import '../providers/health_metric_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/loading_overlay.dart';
+import '../widgets/custom_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -183,50 +184,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final metrics = healthProvider.metrics;
 
         return Scaffold(
-          appBar: AppBar(
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return _buildAppBarIcon(constraints);
-                    },
-                  ),
-                ),
-              ),
-            ),
-            title: Text(
-              'Fitness Tracker',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  final newTheme = themeProvider.isDark ? 'LIGHT' : 'DARK';
-                  themeProvider.toggleTheme(); // Immediate UI update
-                  _updateThemePreference(context, newTheme); // Update backend
-                },
-                icon: Icon(
-                  themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
-                  color: Theme.of(context).appBarTheme.iconTheme?.color,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  _showLogoutDialog(context, authProvider, themeProvider);
-                },
-                icon: Icon(
-                  Icons.logout,
-                  color: Theme.of(context).appBarTheme.iconTheme?.color,
-                ),
-              ),
-            ],
+          appBar: CustomAppBar(
+            title: 'Fitness Tracker',
+            isDashboard: true,
+            showActions: true,
           ),
+          
           body: Stack(
             children: [
               SingleChildScrollView(
