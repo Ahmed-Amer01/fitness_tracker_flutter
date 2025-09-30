@@ -5,7 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/services.dart';
 import '../models/health_metric_model.dart';
 import '../providers/health_metric_provider.dart';
-import '../theme/app_theme.dart'; // Assuming you have this for colors
+import '../theme/app_theme.dart';
+import '../widgets/custom_app_bar.dart';
 
 class HealthMetricScreen extends StatefulWidget {
   const HealthMetricScreen({super.key});
@@ -95,8 +96,10 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Health Metrics'),
+          appBar: CustomAppBar(
+            title: 'Health Metrics',
+            isDashboard: false,
+            showActions: true,
           ),
           body: provider.loading
               ? const Center(child: CircularProgressIndicator())
@@ -211,7 +214,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                             labelText: 'BMI (auto)',
                                             border: const OutlineInputBorder(),
                                             labelStyle: TextStyle(
-                                              color: AppColors.primaryDark,
                                             ),
                                           ),
                                           controller: TextEditingController(
@@ -227,7 +229,6 @@ class _HealthMetricScreenState extends State<HealthMetricScreen> {
                                   Container(
                                     height: 8,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: FractionallySizedBox(
