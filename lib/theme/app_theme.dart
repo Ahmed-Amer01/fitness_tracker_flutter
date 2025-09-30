@@ -103,7 +103,7 @@ class AppTheme {
           fontSize: 16,
         ),
         bodyMedium: TextStyle(
-          color: AppColors.gray600,
+          color: Colors.black, // Changed from AppColors.gray600
           fontSize: 14,
         ),
       ),
@@ -195,7 +195,7 @@ class AppTheme {
           fontSize: 16,
         ),
         bodyMedium: TextStyle(
-          color: AppColors.gray400,
+          color: Colors.white, // Changed from AppColors.gray400
           fontSize: 14,
         ),
       ),

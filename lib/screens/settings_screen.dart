@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/loading_overlay.dart';
+import '../widgets/custom_app_bar.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -272,6 +273,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // appBar: AppBar(
       //   title: const Text('Settings'),
       // ),
+      appBar: CustomAppBar(
+        title: 'Settings',
+        isDashboard: false,
+        showActions: true,
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
