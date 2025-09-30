@@ -64,71 +64,89 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final isSmallScreen = screenWidth < 360;
-  final screenHeight = MediaQuery.of(context).size.height;
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-  return Scaffold(
-    backgroundColor: AppColors.beige,
-    body: SafeArea(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Image Slider Section (take ~40% of screen height)
-              SizedBox(
-                height: screenHeight * 0.4,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
+    return Scaffold(
+      backgroundColor: AppColors.beige,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo Section
+                Image.asset(
+                  'assets/images/fitnessLogo.png',
+                  fit: BoxFit.contain,
+                  width: screenWidth * 0.3,
+                  height: screenWidth * 0.15,
+                  color: Theme.of(context).appBarTheme.iconTheme?.color,
+                  errorBuilder: (context, error, stackTrace) {
+                    debugPrint('Error loading fitnessLogo.png: $error\n$stackTrace');
+                    return Icon(
+                      Icons.image_not_supported,
+                      color: Theme.of(context).appBarTheme.iconTheme?.color,
+                      size: screenWidth * 0.1,
+                    );
+                  },
+                ),
+                SizedBox(height: isSmallScreen ? 24 : 32),
+
+                // Image Slider Section (take ~40% of screen height)
+                SizedBox(
+                  height: screenHeight * 0.4,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
                         offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          },
-                          itemCount: _images.length,
-                          itemBuilder: (context, index) {
-                            return LayoutBuilder(
-                              builder: (context, constraints) {
-                                return _buildImage(index, constraints);
-                              },
-                            );
-                          },
                         ),
-                        // Dots Navigation
-                        Positioned(
-                          bottom: 12,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              _images.length,
-                              (index) => Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                width: isSmallScreen ? 8 : 10,
-                                height: isSmallScreen ? 8 : 10,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentIndex == index
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Stack(
+                        children: [
+                          PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentIndex = index;
+                              });
+                            },
+                            itemCount: _images.length,
+                            itemBuilder: (context, index) {
+                              return LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return _buildImage(index, constraints);
+                                },
+                              );
+                            },
+                          ),
+                          // Dots Navigation
+                          Positioned(
+                            bottom: 12,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                _images.length,
+                                (index) => Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                                  width: isSmallScreen ? 8 : 10,
+                                  height: isSmallScreen ? 8 : 10,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _currentIndex == index
                                       ? AppColors.blue900
                                       : AppColors.gray400.withOpacity(0.6),
                                 ),
@@ -136,48 +154,48 @@ Widget build(BuildContext context) {
                             ),
                           ),
                         ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: isSmallScreen ? 24 : 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-              // Get Started Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  style: ElevatedButton.styleFrom(
+                // Get Started Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue900,
-                    padding: EdgeInsets.symmetric(
-                      vertical: isSmallScreen ? 14 : 16,
-                      horizontal: isSmallScreen ? 24 : 32,
+                      padding: EdgeInsets.symmetric(
+                        vertical: isSmallScreen ? 14 : 16,
+                        horizontal: isSmallScreen ? 24 : 32,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 2,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    'Get Started',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      'Get Started',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: isSmallScreen ? 24 : 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-              // About Us Section
-              Column(
-                children: [
+                // About Us Section
+                Column(
+                  children: [
                   Text(
                     'About Us',
                     style: TextStyle(
@@ -187,31 +205,30 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   SizedBox(height: isSmallScreen ? 12 : 16),
-                  Text(
-                    'Welcome to our fitness tracker app! 🚀\n\nWe help you stay on top of your workouts, track health stats, and achieve your goals while connecting with a supportive community.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 12 : 14,
+                    Text(
+                      'Welcome to our fitness tracker app! 🚀\n\nWe help you stay on top of your workouts, track health stats, and achieve your goals while connecting with a supportive community.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
                       color: AppColors.gray600,
-                      height: 1.4,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // Image widget to display actual assets, flexible for any dimensions
   Widget _buildImage(int index, BoxConstraints constraints) {
     return Image.asset(
       _images[index],
-      fit: BoxFit.contain, // Preserves aspect ratio, fits within bounds
+      fit: BoxFit.contain,
       width: constraints.maxWidth,
       height: constraints.maxHeight,
       errorBuilder: (context, error, stackTrace) {
