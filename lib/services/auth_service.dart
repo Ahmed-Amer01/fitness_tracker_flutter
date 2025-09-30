@@ -323,4 +323,25 @@ class AuthService {
       return null;
     }
   }
+
+  // Logout API
+  Future<AuthResult> logout(String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/logout'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        return AuthResult(success: true, message: 'Logged out successfully');
+      } else {
+        final data = jsonDecode(response.body);
+        return AuthResult(
+          success: false,
+          message: data['message'] ?? 'Failed to logout: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      return AuthResult(success: false, message: 'Logout error: $e');
+    }
+  }
 }

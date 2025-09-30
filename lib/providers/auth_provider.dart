@@ -147,12 +147,27 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Logout
-  Future<void> logout() async {
-    _token = null;
-    _user = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
-    notifyListeners();
+  Future<AuthResult> logout() async {
+    if (_token == null) {
+      return AuthResult(success: true, message: 'Already logged out');
+    }
+    _setLoading(true);
+    try {
+      final result = await _authService.logout(_token!);
+      if (result.success) {
+        _token = null;
+        _user = null;
+        _profileImageBytes = null;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('auth_token');
+        notifyListeners();
+      }
+      _setLoading(false);
+      return result;
+    } catch (e) {
+      _setLoading(false);
+      return AuthResult(success: false, message: 'Logout error: $e');
+    }
   }
 
   // Update Profile
