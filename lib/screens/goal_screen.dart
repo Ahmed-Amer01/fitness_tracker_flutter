@@ -57,15 +57,15 @@ class _GoalScreenState extends State<GoalScreen> {
     }
   }
 
-  Goal _readGoalFromControllers({String? id}) {
+  Goal _readGoalFromControllers({Goal? original}) {
     return Goal(
-      id: id,
+      id: original?.id,
       description: _descriptionController.text.trim(),
       targetWeight: double.tryParse(_targetWeightController.text) ?? 0.0,
       currentWeight: double.tryParse(_currentWeightController.text) ?? 0.0,
       deadline: _deadlineController.text,
       status: _selectedStatus ?? GoalStatus.notStarted,
-      createdAt: DateTime.now(),
+      createdAt: original?.createdAt ?? DateTime.now(),
       updatedAt: DateTime.now(),
     );
   }
@@ -307,7 +307,7 @@ class _GoalScreenState extends State<GoalScreen> {
                                         onPressed: () async {
                                           if (_formKey.currentState!.validate()) {
                                             final goal = _readGoalFromControllers(
-                                              id: editingGoal?.id,
+                                              original: editingGoal
                                             );
                                             await provider.saveGoal(goal);
                                             setState(() {
