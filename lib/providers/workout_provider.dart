@@ -111,7 +111,7 @@ class WorkoutProvider with ChangeNotifier {
 
   // Add exercises to workout
   Future<bool> addExercisesToWorkout(
-      String workoutId, List<Map<String, dynamic>> exercises,
+      String workoutId, List<CreateWorkoutExerciseDto> exercises,
       {String? token}) async {
     _setLoading(true);
     _clearError();
@@ -119,6 +119,72 @@ class WorkoutProvider with ChangeNotifier {
     try {
       final updatedWorkout = await _workoutService
           .addExercisesToWorkout(workoutId, exercises, token: token);
+      final index = _workouts.indexWhere((w) => w.id == workoutId);
+      if (index != -1) {
+        _workouts[index] = updatedWorkout;
+        _applyFilters();
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Get workout exercises
+  Future<List<WorkoutExercise>> getWorkoutExercises(String workoutId,
+      {String? token}) async {
+    try {
+      return await _workoutService.getWorkoutExercises(workoutId, token: token);
+    } catch (e) {
+      _setError(e.toString());
+      return [];
+    }
+  }
+
+  // Update workout exercise
+  Future<bool> updateWorkoutExercise(
+      String workoutId, String exerciseId, CreateWorkoutExerciseDto exercise,
+      {String? token}) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _workoutService
+          .updateWorkoutExercise(workoutId, exerciseId, exercise, token: token);
+      // Refresh the workout to get updated data
+      final updatedWorkout =
+          await _workoutService.getWorkoutById(workoutId, token: token);
+      final index = _workouts.indexWhere((w) => w.id == workoutId);
+      if (index != -1) {
+        _workouts[index] = updatedWorkout;
+        _applyFilters();
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Delete workout exercise
+  Future<bool> deleteWorkoutExercise(String workoutId, String exerciseId,
+      {String? token}) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _workoutService.deleteWorkoutExercise(workoutId, exerciseId,
+          token: token);
+      // Refresh the workout to get updated data
+      final updatedWorkout =
+          await _workoutService.getWorkoutById(workoutId, token: token);
       final index = _workouts.indexWhere((w) => w.id == workoutId);
       if (index != -1) {
         _workouts[index] = updatedWorkout;

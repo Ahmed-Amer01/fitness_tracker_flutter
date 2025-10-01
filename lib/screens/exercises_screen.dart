@@ -583,16 +583,114 @@ class _ExercisesScreenState extends State<ExercisesScreen>
         _showExerciseDetails(context, exercise);
         break;
       case 'edit':
-        // TODO: Implement edit functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Edit functionality coming soon!')),
-        );
+        _showEditExerciseDialog(
+            context, exercise, exerciseProvider, authProvider);
         break;
       case 'delete':
         _showDeleteConfirmation(
             context, exercise, exerciseProvider, authProvider);
         break;
     }
+  }
+
+  void _showEditExerciseDialog(BuildContext context, Exercise exercise,
+      ExerciseProvider exerciseProvider, AuthProvider authProvider) {
+    final nameController = TextEditingController(text: exercise.name);
+    final descriptionController =
+        TextEditingController(text: exercise.description ?? '');
+    ExerciseCategory selectedCategory = exercise.category;
+    TrackingMode selectedTrackingMode = exercise.trackingMode;
+    bool hasWeights = exercise.hasWeights;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Exercise'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Exercise Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<ExerciseCategory>(
+                  value: selectedCategory,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: ExerciseCategory.values.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<TrackingMode>(
+                  value: selectedTrackingMode,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking Mode',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: TrackingMode.values.map((mode) {
+                    return DropdownMenuItem(
+                      value: mode,
+                      child: Text(mode.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedTrackingMode = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  title: const Text('Requires weights'),
+                  value: hasWeights,
+                  onChanged: (value) {
+                    setState(() {
+                      hasWeights = value ?? false;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => {},
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showDeleteConfirmation(BuildContext context, Exercise exercise,
@@ -698,6 +796,59 @@ extension TrackingModeExtension on TrackingMode {
         return 'Time';
       case TrackingMode.both:
         return 'Both';
+    }
+  }
+
+  Future<void> _updateExercise(
+      BuildContext context,
+      Exercise exercise,
+      String name,
+      String description,
+      ExerciseCategory category,
+      TrackingMode trackingMode,
+      bool hasWeights,
+      ExerciseProvider exerciseProvider,
+      AuthProvider authProvider) async {
+    if (name.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter an exercise name'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pop();
+
+    if (authProvider.token == null) return;
+
+    final success = await exerciseProvider.updateExercise(
+      exercise.id,
+      UpdateExerciseDto(
+        name: name.trim(),
+        description: description.trim().isEmpty ? null : description.trim(),
+        category: category,
+        trackingMode: trackingMode,
+        hasWeights: hasWeights,
+      ),
+      token: authProvider.token,
+    );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Exercise updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(exerciseProvider.error ?? 'Failed to update exercise'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

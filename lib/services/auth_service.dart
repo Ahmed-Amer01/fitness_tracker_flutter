@@ -257,14 +257,12 @@ class AuthService {
           token: data['newToken'],
           message: 'Profile updated successfully',
         );
-      } 
-      else if (response.statusCode == 200) {
+      } else if (response.statusCode == 200) {
         return AuthResult(
           success: true,
           message: data['message'] ?? 'Profile updated successfully',
         );
-      } 
-      else {
+      } else {
         final msg = data['message'] ?? 'Profile update failed';
         return AuthResult(success: false, message: msg);
       }
