@@ -7,11 +7,33 @@ import '../models/post.dart';
 import '../providers/auth_provider.dart';
 import '../utils/api_config.dart';
 
+class UserProfile {
+  final String firstName;
+  final String lastName;
+  final String? profilePic;
+
+  UserProfile({
+    required this.firstName,
+    required this.lastName,
+    this.profilePic,
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      profilePic: json['profilePic'],
+    );
+  }
+
+  String get fullName => '$firstName $lastName'.trim();
+}
+
 class Comment {
   final String commentId;
   final String content;
   final String userId;
-  final String username;
+  String username; // Changed to mutable to update after fetching profile
   final DateTime createdAt;
 
   Comment({
@@ -33,18 +55,8 @@ class Comment {
       userId = json['user']['id'].toString();
     }
 
-    // Extract username - can be direct field or nested in user object
-    String username = 'Anonymous';
-    if (json['username'] != null && json['username'].toString().isNotEmpty) {
-      username = json['username'];
-    } else if (json['user'] != null && json['user']['username'] != null && json['user']['username'].toString().isNotEmpty) {
-      username = json['user']['username'];
-    } else if (json['user'] != null && json['user']['name'] != null && json['user']['name'].toString().isNotEmpty) {
-      username = json['user']['name'];
-    } else {
-      // If no username found, use "User {userId}" as fallback
-      username = userId.isNotEmpty ? 'User $userId' : 'Anonymous';
-    }
+    // Temporarily set username as userId (will be updated after profile fetch)
+    String username = userId.isNotEmpty ? 'User $userId' : 'Anonymous';
 
     return Comment(
       commentId: json['commentId']?.toString() ?? json['id']?.toString() ?? '',
@@ -76,6 +88,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isSubmitting = false;
   bool _hasLikeChanged = false;
 
+  // Cache for user profiles to avoid redundant API calls
+  final Map<String, UserProfile> _userProfileCache = {};
+
   @override
   void initState() {
     super.initState();
@@ -87,6 +102,37 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void dispose() {
     _commentController.dispose();
     super.dispose();
+  }
+
+  Future<UserProfile?> _fetchUserProfile(String userId) async {
+    // Check cache first
+    if (_userProfileCache.containsKey(userId)) {
+      return _userProfileCache[userId];
+    }
+
+    try {
+      final token = Provider.of<AuthProvider>(context, listen: false).token;
+      final response = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}/profile/$userId"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print("User profile response for $userId: ${response.statusCode}");
+      print("User profile body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final profile = UserProfile.fromJson(json.decode(response.body));
+        // Cache the profile
+        _userProfileCache[userId] = profile;
+        return profile;
+      }
+    } catch (e) {
+      print("Error fetching user profile for $userId: $e");
+    }
+    return null;
   }
 
   Future<void> _fetchPostDetail() async {
@@ -166,16 +212,43 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
         print("Parsed comments count: ${commentsData.length}");
 
+        List<Comment> comments = commentsData.map((json) => Comment.fromJson(json)).toList();
+
         setState(() {
-          _comments = commentsData.map((json) => Comment.fromJson(json)).toList();
+          _comments = comments;
           _isLoadingComments = false;
         });
+
+        // Fetch user profiles for all comments
+        await _fetchUserProfilesForComments();
       } else {
         throw Exception("Failed to load comments");
       }
     } catch (e) {
       print("Error fetching comments: $e");
       setState(() => _isLoadingComments = false);
+    }
+  }
+
+  Future<void> _fetchUserProfilesForComments() async {
+    // Get unique user IDs
+    final userIds = _comments.map((c) => c.userId).where((id) => id.isNotEmpty).toSet();
+
+    // Fetch profiles for all users
+    for (String userId in userIds) {
+      final profile = await _fetchUserProfile(userId);
+      if (profile != null) {
+        // Update all comments from this user
+        setState(() {
+          for (var comment in _comments) {
+            if (comment.userId == userId) {
+              comment.username = profile.fullName.isNotEmpty
+                  ? profile.fullName
+                  : 'User $userId';
+            }
+          }
+        });
+      }
     }
   }
 
