@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/workout_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/workout_model.dart';
+import '../widgets/exercise_selector.dart';
 
 class WorkoutsScreen extends StatefulWidget {
   const WorkoutsScreen({super.key});
@@ -412,61 +413,111 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
     bool isShared = false;
+    List<String> selectedExercises = [];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Create Workout'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Workout Name',
-                  border: OutlineInputBorder(),
+        builder: (context, setState) => Dialog(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Create Workout',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+
+                // Workout basic info
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Workout Name',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              CheckboxListTile(
-                title: const Text('Share with community'),
-                value: isShared,
-                onChanged: (value) {
-                  setState(() {
-                    isShared = value ?? false;
-                  });
-                },
-              ),
-            ],
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  title: const Text('Share with community'),
+                  value: isShared,
+                  onChanged: (value) {
+                    setState(() {
+                      isShared = value ?? false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Exercise selection
+                Expanded(
+                  child: ExerciseSelector(
+                    selectedExercises: selectedExercises,
+                    onSelectionChanged: (exercises) {
+                      setState(() {
+                        selectedExercises = exercises;
+                      });
+                    },
+                    hintText: 'Select exercises for this workout...',
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _createWorkoutWithExercises(
+                          context,
+                          nameController.text,
+                          descriptionController.text,
+                          isShared,
+                          selectedExercises,
+                        ),
+                        child: const Text('Create Workout'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => _createWorkout(context, nameController.text,
-                  descriptionController.text, isShared),
-              child: const Text('Create'),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Future<void> _createWorkout(BuildContext context, String name,
-      String description, bool isShared) async {
+  Future<void> _createWorkoutWithExercises(BuildContext context, String name,
+      String description, bool isShared, List<String> selectedExercises) async {
     if (name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -485,6 +536,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
     if (authProvider.token == null) return;
 
+    // Create the workout first
     final success = await workoutProvider.createWorkout(
       CreateWorkoutDto(
         name: name.trim(),
@@ -494,10 +546,25 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       token: authProvider.token,
     );
 
+    if (success && selectedExercises.isNotEmpty) {
+      // Add exercises to the workout
+      final workoutExercises = selectedExercises
+          .map((exerciseName) =>
+              CreateWorkoutExerciseDto(exerciseName: exerciseName))
+          .toList();
+
+      await workoutProvider.addExercisesToWorkout(
+        workoutProvider.workouts.last.id, // Get the newly created workout
+        workoutExercises,
+        token: authProvider.token,
+      );
+    }
+
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Workout created successfully!'),
+        SnackBar(
+          content: Text(
+              'Workout created successfully with ${selectedExercises.length} exercises!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -522,16 +589,126 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         _showWorkoutDetails(context, workout);
         break;
       case 'edit':
-        // TODO: Implement edit functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Edit functionality coming soon!')),
-        );
+        _showEditWorkoutDialog(context, workout, workoutProvider, authProvider);
         break;
       case 'delete':
         _showDeleteConfirmation(
             context, workout, workoutProvider, authProvider);
         break;
     }
+  }
+
+  void _showEditWorkoutDialog(BuildContext context, Workout workout,
+      WorkoutProvider workoutProvider, AuthProvider authProvider) {
+    final nameController = TextEditingController(text: workout.name);
+    final descriptionController =
+        TextEditingController(text: workout.description ?? '');
+    bool isShared = workout.isShared;
+    List<String> selectedExercises =
+        workout.workoutExercises.map((e) => e.exerciseName).toList();
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Edit Workout',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Workout basic info
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Workout Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  title: const Text('Share with community'),
+                  value: isShared,
+                  onChanged: (value) {
+                    setState(() {
+                      isShared = value ?? false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Exercise selection
+                Expanded(
+                  child: ExerciseSelector(
+                    selectedExercises: selectedExercises,
+                    onSelectionChanged: (exercises) {
+                      setState(() {
+                        selectedExercises = exercises;
+                      });
+                    },
+                    hintText: 'Select exercises for this workout...',
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _updateWorkoutWithExercises(
+                          context,
+                          workout,
+                          nameController.text,
+                          descriptionController.text,
+                          isShared,
+                          selectedExercises,
+                          workoutProvider,
+                          authProvider,
+                        ),
+                        child: const Text('Update Workout'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showDeleteConfirmation(BuildContext context, Workout workout,
@@ -578,5 +755,89 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _updateWorkoutWithExercises(
+      BuildContext context,
+      Workout workout,
+      String name,
+      String description,
+      bool isShared,
+      List<String> selectedExercises,
+      WorkoutProvider workoutProvider,
+      AuthProvider authProvider) async {
+    if (name.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a workout name'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pop();
+
+    if (authProvider.token == null) return;
+
+    // Update the workout basic info
+    final success = await workoutProvider.updateWorkout(
+      workout.id,
+      UpdateWorkoutDto(
+        name: name.trim(),
+        description: description.trim().isEmpty ? null : description.trim(),
+        isShared: isShared,
+      ),
+      token: authProvider.token,
+    );
+
+    if (success) {
+      // Handle exercise updates
+      final currentExercises =
+          workout.workoutExercises.map((e) => e.exerciseName).toList();
+
+      // Find exercises to add and remove
+      final exercisesToAdd = selectedExercises
+          .where((e) => !currentExercises.contains(e))
+          .toList();
+      final exercisesToRemove = currentExercises
+          .where((e) => !selectedExercises.contains(e))
+          .toList();
+
+      // Remove exercises
+      for (final exerciseName in exercisesToRemove) {
+        final exerciseToRemove = workout.workoutExercises
+            .firstWhere((e) => e.exerciseName == exerciseName);
+        await workoutProvider.deleteWorkoutExercise(
+            workout.id, exerciseToRemove.id,
+            token: authProvider.token);
+      }
+
+      // Add new exercises
+      if (exercisesToAdd.isNotEmpty) {
+        final workoutExercises = exercisesToAdd
+            .map((exerciseName) =>
+                CreateWorkoutExerciseDto(exerciseName: exerciseName))
+            .toList();
+
+        await workoutProvider.addExercisesToWorkout(
+            workout.id, workoutExercises,
+            token: authProvider.token);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Workout updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(workoutProvider.error ?? 'Failed to update workout'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

@@ -126,16 +126,17 @@ class WorkoutService {
   }
 
   Future<Workout> addExercisesToWorkout(
-      String workoutId, List<Map<String, dynamic>> exercises,
+      String workoutId, List<CreateWorkoutExerciseDto> exercises,
       {String? token}) async {
     try {
+      final exercisesJson = exercises.map((e) => e.toJson()).toList();
       final response = await http.post(
         Uri.parse('$baseUrl/api/workouts/$workoutId/exercises'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(exercises),
+        body: jsonEncode(exercisesJson),
       );
 
       if (response.statusCode == 200) {
@@ -144,6 +145,74 @@ class WorkoutService {
       } else {
         throw Exception(
             'Failed to add exercises to workout: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: ${e.toString()}');
+    }
+  }
+
+  Future<List<WorkoutExercise>> getWorkoutExercises(String workoutId,
+      {String? token}) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/workouts/$workoutId/exercises'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => WorkoutExercise.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            'Failed to fetch workout exercises: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: ${e.toString()}');
+    }
+  }
+
+  Future<WorkoutExercise> updateWorkoutExercise(
+      String workoutId, String exerciseId, CreateWorkoutExerciseDto exercise,
+      {String? token}) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/workouts/$workoutId/exercises/$exerciseId'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(exercise.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return WorkoutExercise.fromJson(data);
+      } else {
+        throw Exception(
+            'Failed to update workout exercise: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: ${e.toString()}');
+    }
+  }
+
+  Future<void> deleteWorkoutExercise(String workoutId, String exerciseId,
+      {String? token}) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/workouts/$workoutId/exercises/$exerciseId'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to delete workout exercise: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Network error: ${e.toString()}');

@@ -1,43 +1,51 @@
 class WorkoutExercise {
   final String id;
-  final String exerciseId;
   final String exerciseName;
-  final String? sets;
-  final String? reps;
-  final String? duration;
-  final String? weight;
+  final String? workoutName;
+  final int? sets;
+  final int? reps;
+  final int? duration;
+  final int? calories;
+  final int? orderInWorkout;
+  final String? notes;
 
   WorkoutExercise({
     required this.id,
-    required this.exerciseId,
     required this.exerciseName,
+    this.workoutName,
     this.sets,
     this.reps,
     this.duration,
-    this.weight,
+    this.calories,
+    this.orderInWorkout,
+    this.notes,
   });
 
   factory WorkoutExercise.fromJson(Map<String, dynamic> json) {
     return WorkoutExercise(
       id: json['id']?.toString() ?? '',
-      exerciseId: json['exerciseId']?.toString() ?? '',
       exerciseName: json['exerciseName'] ?? '',
-      sets: json['sets']?.toString(),
-      reps: json['reps']?.toString(),
-      duration: json['duration']?.toString(),
-      weight: json['weight']?.toString(),
+      workoutName: json['workoutName'],
+      sets: json['sets'],
+      reps: json['reps'],
+      duration: json['duration'],
+      calories: json['calories'],
+      orderInWorkout: json['orderInWorkout'],
+      notes: json['notes'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'exerciseId': exerciseId,
       'exerciseName': exerciseName,
+      'workoutName': workoutName,
       'sets': sets,
       'reps': reps,
       'duration': duration,
-      'weight': weight,
+      'calories': calories,
+      'orderInWorkout': orderInWorkout,
+      'notes': notes,
     };
   }
 }
@@ -121,6 +129,38 @@ class UpdateWorkoutDto {
       'name': name,
       'description': description,
       'isShared': isShared,
+    };
+  }
+}
+
+class CreateWorkoutExerciseDto {
+  final String exerciseName;
+  final int? sets;
+  final int? reps;
+  final int? duration;
+  final int? calories;
+  final int? orderInWorkout;
+  final String? notes;
+
+  CreateWorkoutExerciseDto({
+    required this.exerciseName,
+    this.sets,
+    this.reps,
+    this.duration,
+    this.calories,
+    this.orderInWorkout,
+    this.notes,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'exerciseName': exerciseName,
+      'sets': sets,
+      'reps': reps,
+      'duration': duration,
+      'calories': calories,
+      'orderInWorkout': orderInWorkout,
+      'notes': notes,
     };
   }
 }

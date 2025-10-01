@@ -740,16 +740,168 @@ class _NutritionScreenState extends State<NutritionScreen>
         _showNutritionDetails(context, nutrition);
         break;
       case 'edit':
-        // TODO: Implement edit functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Edit functionality coming soon!')),
-        );
+        _showEditNutritionDialog(
+            context, nutrition, nutritionProvider, authProvider);
         break;
       case 'delete':
         _showDeleteConfirmation(
             context, nutrition, nutritionProvider, authProvider);
         break;
     }
+  }
+
+  void _showEditNutritionDialog(BuildContext context, Nutrition nutrition,
+      NutritionProvider nutritionProvider, AuthProvider authProvider) {
+    final nameController = TextEditingController(text: nutrition.name);
+    final caloriesController = TextEditingController(
+        text: nutrition.caloriesPer100g?.toString() ?? '');
+    final proteinController =
+        TextEditingController(text: nutrition.proteinPer100g?.toString() ?? '');
+    final carbsController =
+        TextEditingController(text: nutrition.carbsPer100g?.toString() ?? '');
+    final fatsController =
+        TextEditingController(text: nutrition.fatsPer100g?.toString() ?? '');
+    final fiberController =
+        TextEditingController(text: nutrition.fiberPer100g?.toString() ?? '');
+    final sugarController =
+        TextEditingController(text: nutrition.sugarPer100g?.toString() ?? '');
+    NutritionCategory selectedCategory = nutrition.category;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Nutrition Item'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Food Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<NutritionCategory>(
+                  value: selectedCategory,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: NutritionCategory.values.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Text(_getCategoryEmoji(category)),
+                          const SizedBox(width: 8),
+                          Text(_getCategoryDisplayName(category)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Nutrition per 100g:',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: caloriesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Calories',
+                    border: OutlineInputBorder(),
+                    suffixText: 'kcal',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: proteinController,
+                  decoration: const InputDecoration(
+                    labelText: 'Protein',
+                    border: OutlineInputBorder(),
+                    suffixText: 'g',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: carbsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Carbohydrates',
+                    border: OutlineInputBorder(),
+                    suffixText: 'g',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: fatsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Fats',
+                    border: OutlineInputBorder(),
+                    suffixText: 'g',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: fiberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Fiber (Optional)',
+                    border: OutlineInputBorder(),
+                    suffixText: 'g',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: sugarController,
+                  decoration: const InputDecoration(
+                    labelText: 'Sugar (Optional)',
+                    border: OutlineInputBorder(),
+                    suffixText: 'g',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => _updateNutrition(
+                context,
+                nutrition,
+                nameController.text,
+                selectedCategory,
+                caloriesController.text,
+                proteinController.text,
+                carbsController.text,
+                fatsController.text,
+                fiberController.text,
+                sugarController.text,
+                nutritionProvider,
+                authProvider,
+              ),
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showDeleteConfirmation(BuildContext context, Nutrition nutrition,
@@ -852,6 +1004,66 @@ class _NutritionScreenState extends State<NutritionScreen>
         return Colors.cyan;
       case NutritionCategory.other:
         return Colors.grey;
+    }
+  }
+
+  Future<void> _updateNutrition(
+      BuildContext context,
+      Nutrition nutrition,
+      String name,
+      NutritionCategory category,
+      String calories,
+      String protein,
+      String carbs,
+      String fats,
+      String fiber,
+      String sugar,
+      NutritionProvider nutritionProvider,
+      AuthProvider authProvider) async {
+    if (name.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a food name'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pop();
+
+    if (authProvider.token == null) return;
+
+    final success = await nutritionProvider.updateNutrition(
+      nutrition.id,
+      UpdateNutritionDto(
+        name: name.trim(),
+        category: category,
+        caloriesPer100g: double.tryParse(calories),
+        proteinPer100g: double.tryParse(protein),
+        carbsPer100g: double.tryParse(carbs),
+        fatsPer100g: double.tryParse(fats),
+        fiberPer100g: fiber.isNotEmpty ? double.tryParse(fiber) : null,
+        sugarPer100g: sugar.isNotEmpty ? double.tryParse(sugar) : null,
+      ),
+      token: authProvider.token,
+    );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nutrition item updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              nutritionProvider.error ?? 'Failed to update nutrition item'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
